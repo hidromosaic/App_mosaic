@@ -1,0 +1,35 @@
+{% extends 'monitor/base.html' %}
+{% load group_tags %}
+{% block content %}
+<h2>Relatórios</h2>
+<a href="{% url 'adicionar_relatorio' %}">Adicionar novo relatório</a>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Unidade</th>
+            <th>Revisão</th>
+            <th>Data</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for relatorio in relatorios %}
+        <tr>
+            <td>{{ relatorio.nome }}</td>
+            <td>{{ relatorio.unidade }}</td>
+            <td>{{ relatorio.revisao }}</td>
+            <td>{{ relatorio.data }}</td>
+            <td>
+                <a href="{% url 'editar_relatorio' relatorio.id %}">Editar</a>
+                {% if user|has_group:"Gerenciador" %} |
+                <a href="{% url 'excluir_relatorio' relatorio.id %}">Excluir</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Nenhum relatório registrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

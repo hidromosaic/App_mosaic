@@ -1,0 +1,35 @@
+{% extends 'monitor/base.html' %}
+{% load group_tags %}
+{% block content %}
+<h2>Controle de Resíduos</h2>
+<a href="{% url 'adicionar_residuo' %}">Adicionar novo resíduo</a>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Data de Emissão</th>
+            <th>Peso</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for residuo in residuos %}
+        <tr>
+            <td>{{ residuo.codigo_residuo }}</td>
+            <td>{{ residuo.nome_residuo }}</td>
+            <td>{{ residuo.data_emissao }}</td>
+            <td>{{ residuo.peso }}</td>
+            <td>
+                <a href="{% url 'editar_residuo' residuo.id %}">Editar</a>
+                {% if user|has_group:"Gerenciador" %} |
+                <a href="{% url 'excluir_residuo' residuo.id %}">Excluir</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Nenhum resíduo registrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

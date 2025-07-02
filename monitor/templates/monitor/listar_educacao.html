@@ -1,0 +1,41 @@
+{% extends 'monitor/base.html' %}
+{% load group_tags %}
+{% block content %}
+<h2>Educação Ambiental</h2>
+<a href="{% url 'adicionar_educacao' %}">Adicionar nova atividade</a>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Tema</th>
+            <th>Atividade</th>
+            <th>Data planejada</th>
+            <th>Data executada</th>
+            <th>Total de participantes</th>
+            {% if user|has_group:"Gerenciador" %}
+            <th>Ações</th>
+            {% endif %}
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in educacoes %}
+        <tr>
+            <td>{{ item.tema }}</td>
+            <td>{{ item.atividade }}</td>
+            <td>{{ item.data_planejada }}</td>
+            <td>{{ item.data_executada }}</td>
+            <td>{{ item.total_participantes }}</td>
+            <td>
+
+                {% if user|has_group:"Gerenciador" %}
+                <a href="{% url 'editar_educacao' item.id %}">Editar</a>|
+                <a href="{% url 'excluir_educacao' item.id %}">Excluir</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">Nenhuma atividade registrada.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

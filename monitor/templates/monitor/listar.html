@@ -1,0 +1,34 @@
+{% extends 'monitor/base.html' %}
+{% block content %}
+<h2>Monitoramentos de Efluentes</h2>
+<a href="{% url 'adicionar_monitoramento' %}">Adicionar Novo</a>
+<table>
+    <thead>
+        <tr>
+            <th>Parâmetro</th>
+            <th>Data</th>
+            <th>Resultado</th>
+            <th>Conformidade</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in monitoramentos %}
+        <tr>
+            <td>{{ m.parametro.nome }}</td>
+            <td>{{ m.data_medicao }}</td>
+            <td>{{ m.resultado }}</td>
+            <td>{{ m.conformidade }}</td>
+            <td>
+                {% if user.groups.first.name == 'Gerenciador' %}
+                    <a href="{% url 'editar_monitoramento' m.id %}">Editar</a>
+                    <a href="{% url 'excluir_monitoramento' m.id %}">Excluir</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Nenhum monitoramento cadastrado.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

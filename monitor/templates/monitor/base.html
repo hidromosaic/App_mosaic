@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+{% load group_tags %}
+
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Monitoramento de Efluentes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        nav ul li {
+            display: inline;
+            margin-right: 15px;
+        }
+        nav form {
+            display: inline;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-left: 5px solid #28a745;
+            margin-bottom: 15px;
+        }
+        .alert-error, .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-left: 5px solid #dc3545;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <ul>
+
+
+        {% if user.is_authenticated %}
+            <li><a href="{% url 'listar_monitoramentos' %}">Monitoramentos</a></li>
+            <li><a href="{% url 'listar_educacao' %}">Educação Ambiental</a></li>
+            <li><a href="{% url 'listar_residuos' %}">Residuos Sólidos</a></li>
+            <li><a href="{% url 'listar_relatorios' %}">Relatórios</a></li>
+
+            {% if user|has_group:"Gerenciador" %}
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            {% endif %}
+
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit">Sair</button>
+            </form>
+        {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- MENSAGENS -->
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="alert-{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<!-- CONTEÚDO PRINCIPAL -->
+{% block content %}
+{% endblock %}
+
+</body>
+</html>

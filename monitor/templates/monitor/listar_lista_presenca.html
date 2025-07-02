@@ -1,0 +1,33 @@
+{% extends 'monitor/base.html' %}
+{% load group_tags %}
+{% block content %}
+<h2>Lista de Presença</h2>
+<a href="{% url 'adicionar_presenca' %}">Adicionar nova presença</a>
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Sobrenome</th>
+            <th>Matrícula</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pessoa in presencas %}
+        <tr>
+            <td>{{ pessoa.nome }}</td>
+            <td>{{ pessoa.sobrenome }}</td>
+            <td>{{ pessoa.matricula }}</td>
+            <td>
+                <a href="{% url 'editar_presenca' pessoa.id %}">Editar</a>
+                {% if user|has_group:"Gerenciador" %} |
+                <a href="{% url 'excluir_presenca' pessoa.id %}">Excluir</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">Nenhuma presença registrada.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
