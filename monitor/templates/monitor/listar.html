@@ -5,16 +5,21 @@
 <table>
     <thead>
         <tr>
+            <th>Unidade</th>
+            <th>Ponto Monitorado</th>
             <th>Parâmetro</th>
             <th>Data</th>
             <th>Resultado</th>
             <th>Conformidade</th>
             <th>Ações</th>
+            <th>Responsável</th>
         </tr>
     </thead>
     <tbody>
         {% for m in monitoramentos %}
         <tr>
+            <td>{{ m.unidade_empresarial }}</td>
+            <td>{{ m.ponto_monitorado }}</td>
             <td>{{ m.parametro.nome }}</td>
             <td>{{ m.data_medicao }}</td>
             <td>{{ m.resultado }}</td>
@@ -25,6 +30,7 @@
                     <a href="{% url 'excluir_monitoramento' m.id %}">Excluir</a>
                 {% endif %}
             </td>
+            <td>{{ m.inserido_por }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="5">Nenhum monitoramento cadastrado.</td></tr>

@@ -25,28 +25,35 @@ def is_tecnico(user):
 @login_required
 def adicionar_monitoramento(request):
     if request.method == 'POST':
-        form = MonitoramentoEfluenteForm(request.POST)
+        form = MonitoramentoEfluenteForm(request.POST, user=request.user)
         if form.is_valid():
-            monitoramento = form.save()
+            monitoramento = form.save(commit=False)
+            monitoramento.inserido_por = request.user
+            monitoramento.unidade_empresarial = request.user.unidade
+            monitoramento.save()
             messages.success(
                 request,
                 f"Monitoramento salvo com sucesso. Conformidade: {monitoramento.conformidade}"
             )
             return redirect('listar_monitoramentos')
     else:
-        form = MonitoramentoEfluenteForm()
+        form = MonitoramentoEfluenteForm(user=request.user)
     return render(request, 'monitor/adicionar.html', {'form': form})
 
 @login_required
 @user_passes_test(is_gerenciador)
 def editar_monitoramento(request, pk):
-    monitoramento = get_object_or_404(MonitoramentoEfluente, pk=pk)
-    form = MonitoramentoEfluenteForm(request.POST, instance=monitoramento)
-    if form.is_valid():
-        form.save()
-        return redirect('listar_monitoramentos')
+    obj = get_object_or_404(MonitoramentoEfluente, pk=pk)
+    if request.method == 'POST':
+        form = MonitoramentoEfluenteForm(request.POST, instance=obj, user=request.user)
+        if form.is_valid():
+            monitoramento = form.save(commit=False)
+            monitoramento.inserido_por = request.user  # Se quiser atualizar também na edição
+            monitoramento.unidade_empresarial = request.user.unidade
+            monitoramento.save()
+            return redirect('listar_monitoramentos')
     else:
-        form = EducacaoAmbientalForm(instance=monitoramento)
+        form = MonitoramentoEfluenteForm(instance=obj, user=request.user)
     return render(request, 'monitor/form.html', {'form': form})
 
 @login_required
@@ -58,25 +65,32 @@ def excluir_monitoramento(request, pk):
 
 @login_required
 def listar_monitoramentos(request):
-    monitoramentos = MonitoramentoEfluente.objects.all()
+    usuario = request.user
+    unidade = usuario.unidade
+    monitoramentos = MonitoramentoEfluente.objects.filter(ponto_monitorado__unidade_empresarial=unidade)
     return render(request, 'monitor/listar.html', {'monitoramentos': monitoramentos})
 
 
 #Educação Ambiental
 @login_required
 def listar_educacao(request):
-    educacoes = EducacaoAmbiental.objects.all()
+    usuario = request.user
+    unidade = usuario.unidade
+    educacoes = EducacaoAmbiental.objects.filter(unidade_empresarial=unidade)
     return render(request, 'monitor/listar_educacao.html', {'educacoes': educacoes})
 
 @login_required
 def adicionar_educacao(request):
     if request.method == 'POST':
-        form = EducacaoAmbientalForm(request.POST)
+        form = EducacaoAmbientalForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.unidade_empresarial = request.user.unidade
+            instance.inserido_por = request.user
+            instance.save()
             return redirect('listar_educacao')
     else:
-        form = EducacaoAmbientalForm()
+        form = EducacaoAmbientalForm(user=request.user)
     return render(request, 'monitor/form_educacao.html', {'form': form})
 
 @login_required
@@ -84,12 +98,15 @@ def adicionar_educacao(request):
 def editar_educacao(request, pk):
     educacao = get_object_or_404(EducacaoAmbiental, pk=pk)
     if request.method == 'POST':
-        form = EducacaoAmbientalForm(request.POST, instance=educacao)
+        form = EducacaoAmbientalForm(request.POST, instance=educacao, user=request.user)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.unidade_empresarial = request.user.unidade
+            instance.inserido_por = request.user
+            instance.save()
             return redirect('listar_educacao')
     else:
-        form = EducacaoAmbientalForm(instance=educacao)
+        form = EducacaoAmbientalForm(instance=educacao, user=request.user)
     return render(request, 'monitor/form_educacao.html', {'form': form})
 
 @login_required
@@ -105,30 +122,38 @@ def excluir_educacao(request, pk):
 # Controle de Resíduos
 @login_required
 def listar_residuos(request):
-    residuos = ControleResiduo.objects.all()
+    usuario = request.user
+    unidade = usuario.unidade
+    residuos = ControleResiduo.objects.filter(unidade_empresarial=unidade)
     return render(request, 'monitor/listar_residuos.html', {'residuos': residuos})
 
 @login_required
 def adicionar_residuo(request):
     if request.method == 'POST':
-        form = ControleResiduoForm(request.POST)
+        form = ControleResiduoForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.unidade_empresarial = request.user.unidade
+            instance.inserido_por = request.user
+            instance.save()
             return redirect('listar_residuos')
     else:
-        form = ControleResiduoForm()
+        form = ControleResiduoForm(user=request.user)
     return render(request, 'monitor/form_residuo.html', {'form': form})
 
 @login_required
 def editar_residuo(request, pk):
     residuo = get_object_or_404(ControleResiduo, pk=pk)
     if request.method == 'POST':
-        form = ControleResiduoForm(request.POST, instance=residuo)
+        form = ControleResiduoForm(request.POST, instance=residuo, user=request.user)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.unidade_empresarial = request.user.unidade
+            instance.inserido_por = request.user
+            instance.save()
             return redirect('listar_residuos')
     else:
-        form = ControleResiduoForm(instance=residuo)
+        form = ControleResiduoForm(instance=residuo, user=request.user)
     return render(request, 'monitor/form_residuo.html', {'form': form})
 
 @login_required
@@ -182,30 +207,38 @@ def excluir_presenca(request, pk):
 # Relatórios
 @login_required
 def listar_relatorios(request):
-    relatorios = Relatorio.objects.all()
+    usuario = request.user
+    unidade = usuario.unidade
+    relatorios = Relatorio.objects.filter(unidade=unidade)
     return render(request, 'monitor/listar_relatorios.html', {'relatorios': relatorios})
 
 @login_required
 def adicionar_relatorio(request):
     if request.method == 'POST':
-        form = RelatorioForm(request.POST)
+        form = RelatorioForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.unidade = request.user.unidade
+            instance.inserido_por = request.user
+            instance.save()
             return redirect('listar_relatorios')
     else:
-        form = RelatorioForm()
+        form = RelatorioForm(user=request.user)
     return render(request, 'monitor/form_relatorio.html', {'form': form})
 
 @login_required
 def editar_relatorio(request, pk):
     relatorio = get_object_or_404(Relatorio, pk=pk)
     if request.method == 'POST':
-        form = RelatorioForm(request.POST, instance=relatorio)
+        form = RelatorioForm(request.POST, instance=relatorio, user=request.user)
         if form.is_valid():
-            form.save()
+            instance = form.save(commit=False)
+            instance.unidade = request.user.unidade
+            instance.inserido_por = request.user
+            instance.save()
             return redirect('listar_relatorios')
     else:
-        form = RelatorioForm(instance=relatorio)
+        form = RelatorioForm(instance=relatorio, user=request.user)
     return render(request, 'monitor/form_relatorio.html', {'form': form})
 
 @login_required

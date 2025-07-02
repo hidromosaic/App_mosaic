@@ -26,8 +26,8 @@ SECRET_KEY = "django-insecure-z4te1x!8uy4$nu28dg&4nounwaoc8df)9)y$ficwo2#^1#)&3l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['hidromosaic.pythonanywhere.com']
-
+#ALLOWED_HOSTS = ['hidromosaic.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -89,6 +89,8 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+
+AUTH_USER_MODEL = 'monitor.Usuario'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
