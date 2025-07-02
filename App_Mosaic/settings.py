@@ -26,8 +26,8 @@ SECRET_KEY = "django-insecure-z4te1x!8uy4$nu28dg&4nounwaoc8df)9)y$ficwo2#^1#)&3l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#ALLOWED_HOSTS = ['hidromosaic.pythonanywhere.com']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hidromosaic.pythonanywhere.com']
+#ALLOWED_HOSTS = []
 
 # Application definition
 
