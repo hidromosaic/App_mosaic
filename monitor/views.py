@@ -67,8 +67,20 @@ def excluir_monitoramento(request, pk):
 def listar_monitoramentos(request):
     usuario = request.user
     unidade = usuario.unidade
+
+    query = request.GET.get('q')
+
     monitoramentos = MonitoramentoEfluente.objects.filter(ponto_monitorado__unidade_empresarial=unidade)
-    return render(request, 'monitor/listar.html', {'monitoramentos': monitoramentos})
+
+    if query:
+        monitoramentos = monitoramentos.filter(
+            Q(ponto_monitorado__nome__icontains=query) |
+            Q(parametro__nome__icontains=query) |
+            Q(data_medicao__icontains=query) |
+            Q(conformidade__icontains=query)
+        )
+
+    return render(request, 'monitor/listar.html', {'monitoramentos': monitoramentos, 'query': query})
 
 
 #Educação Ambiental
@@ -76,8 +88,17 @@ def listar_monitoramentos(request):
 def listar_educacao(request):
     usuario = request.user
     unidade = usuario.unidade
+
+    query = request.GET.get('q')
+
     educacoes = EducacaoAmbiental.objects.filter(unidade_empresarial=unidade)
-    return render(request, 'monitor/listar_educacao.html', {'educacoes': educacoes})
+
+    if query:
+        educacoes = educacoes.filter(
+            Q(tema__icontains=query)
+        )
+
+    return render(request, 'monitor/listar_educacao.html', {'educacoes': educacoes, 'query':query})
 
 @login_required
 def adicionar_educacao(request):
@@ -124,8 +145,18 @@ def excluir_educacao(request, pk):
 def listar_residuos(request):
     usuario = request.user
     unidade = usuario.unidade
+
+    query = request.GET.get('q')
+
     residuos = ControleResiduo.objects.filter(unidade_empresarial=unidade)
-    return render(request, 'monitor/listar_residuos.html', {'residuos': residuos})
+
+    if query:
+        residuos = residuos.filter(
+            Q(codigo_residuo__icontains=query) |
+            Q(nome_residuo__icontains=query)
+        )
+
+    return render(request, 'monitor/listar_residuos.html', {'residuos': residuos, 'query':query})
 
 @login_required
 def adicionar_residuo(request):
@@ -209,7 +240,15 @@ def excluir_presenca(request, pk):
 def listar_relatorios(request):
     usuario = request.user
     unidade = usuario.unidade
+
+    query = request.GET.get('q')
+
     relatorios = Relatorio.objects.filter(unidade=unidade)
+
+    if query:
+        relatorios = relatorios.filter(
+            Q(nome__icontains=query)
+        )
     return render(request, 'monitor/listar_relatorios.html', {'relatorios': relatorios})
 
 @login_required

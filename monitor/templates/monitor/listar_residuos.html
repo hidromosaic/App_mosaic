@@ -3,6 +3,10 @@
 {% block content %}
 <h2>Controle de Resíduos</h2>
 <a href="{% url 'adicionar_residuo' %}">Adicionar novo resíduo</a>
+<form method="get" class="mb-3">
+    <input type="text" name="q" placeholder="Filtrar por código ou nome" value="{{ query|default_if_none:'' }}">
+    <button type="submit">Filtrar</button>
+</form>
 <table class="table table-striped mt-3">
     <thead>
         <tr>

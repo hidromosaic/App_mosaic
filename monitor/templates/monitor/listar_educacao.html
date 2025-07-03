@@ -3,6 +3,10 @@
 {% block content %}
 <h2>Educação Ambiental</h2>
 <a href="{% url 'adicionar_educacao' %}">Adicionar nova atividade</a>
+<form method="get" class="mb-3">
+    <input type="text" name="q" placeholder="Filtrar por Tema" value="{{ query|default_if_none:'' }}">
+    <button type="submit">Filtrar</button>
+</form>
 <table class="table table-striped mt-3">
     <thead>
         <tr>
