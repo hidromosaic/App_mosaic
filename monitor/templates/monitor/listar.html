@@ -9,7 +9,7 @@
 <table>
     <thead>
         <tr>
-            <th>Unidade</th>
+
             <th>Ponto Monitorado</th>
             <th>Parâmetro</th>
             <th>Data</th>
@@ -22,7 +22,7 @@
     <tbody>
         {% for m in monitoramentos %}
         <tr>
-            <td>{{ m.unidade_empresarial }}</td>
+            
             <td>{{ m.ponto_monitorado }}</td>
             <td>{{ m.parametro.nome }}</td>
             <td>{{ m.data_medicao }}</td>

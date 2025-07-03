@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load group_tags %}
+{% load static %}
 
 <html lang="pt-br">
 <head>
@@ -7,75 +8,173 @@
     <title>Sistema de Monitoramento de Efluentes</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        nav ul {
-            list-style-type: none;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
             padding: 0;
+            background-color: #f4fdf6;
+            color: #2e3d30;
+        }
+
+        .menu-superior {
+            background-color: #2e7d32;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .menu-superior ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            gap: 20px;
+        }
+
+        .menu-superior li {
+            display: inline;
+        }
+
+        .menu-superior a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+
+        .menu-superior a:hover {
+            background-color: #1b5e20;
+        }
+
+        .menu-superior form {
+            display: inline;
+        }
+
+        .menu-superior button {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .menu-superior button:hover {
+            background-color: #a5d6a7;
+        }
+
+        .user-info {
+            background-color: #e8f5e9;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid #c8e6c9;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .messages {
             margin-bottom: 20px;
         }
-        nav ul li {
-            display: inline;
-            margin-right: 15px;
+
+        .messages li {
+            list-style: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
         }
-        nav form {
-            display: inline;
-        }
+
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-left: 5px solid #28a745;
-            margin-bottom: 15px;
+            background-color: #d0f0c0;
+            color: #2e7d32;
+            border-left: 5px solid #2e7d32;
         }
+
         .alert-error, .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: #ffcdd2;
+            color: #b71c1c;
+            border-left: 5px solid #b71c1c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin-top: 20px;
+        }
+
+        th, td {
             padding: 10px;
-            border-left: 5px solid #dc3545;
-            margin-bottom: 15px;
+            border: 1px solid #c8e6c9;
+            text-align: left;
+        }
+
+        th {
+            background-color: #a5d6a7;
+            color: #1b5e20;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f1f8e9;
         }
     </style>
 </head>
 <body>
-
-<nav>
+  <div style="background-color: #ffffff; padding: 10px 20px; display: flex; align-items: center;">
+      <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 60px; margin-right: 20px;">
+      <h1 style="color: #2e7d32; margin: 0;">Sistema de Monitoramento</h1>
+  </div>
+<!-- MENU SUPERIOR -->
+<div class="menu-superior">
     <ul>
-
-
         {% if user.is_authenticated %}
             <li><a href="{% url 'listar_monitoramentos' %}">Monitoramentos</a></li>
             <li><a href="{% url 'listar_educacao' %}">Educação Ambiental</a></li>
-            <li><a href="{% url 'listar_residuos' %}">Residuos Sólidos</a></li>
+            <li><a href="{% url 'listar_residuos' %}">Resíduos Sólidos</a></li>
             <li><a href="{% url 'listar_relatorios' %}">Relatórios</a></li>
-
             {% if user|has_group:"Gerenciador" %}
                 <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
             {% endif %}
-
-            <form method="post" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button type="submit">Sair</button>
-            </form>
-        {% else %}
-            <li><a href="{% url 'login' %}">Login</a></li>
         {% endif %}
     </ul>
-</nav>
+    <div>
+        {% if user.is_authenticated %}
+            <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Sair</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+        {% endif %}
+    </div>
+</div>
 
-<!-- MENSAGENS -->
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li class="alert-{{ message.tags }}">{{ message }}</li>
-    {% endfor %}
-  </ul>
+<!-- INFORMAÇÕES DO USUÁRIO -->
+{% if user.is_authenticated %}
+    <div class="user-info">
+        <strong>Usuário:</strong> {{ user.get_full_name|default:user.username }} |
+        <strong>Unidade Empresarial:</strong> {{ user.unidade }}
+    </div>
 {% endif %}
 
 <!-- CONTEÚDO PRINCIPAL -->
-{% block content %}
-{% endblock %}
+<div class="container">
+
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="alert-{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+</div>
 
 </body>
 </html>
