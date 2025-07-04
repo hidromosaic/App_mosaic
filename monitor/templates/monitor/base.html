@@ -176,5 +176,23 @@
     {% endblock %}
 </div>
 
+<footer style="background-color: #e8f5e9; color: #2e7d32; padding: 20px 0; text-align: center; margin-top: 40px; border-top: 2px solid #a5d6a7;">
+    <p style="margin: 0;">&copy; 2025 HidroMosaic. Todos os direitos reservados.</p>
+    <p style="margin: 0; font-size: 0.9em;">Desenvolvido por HIDROBR</p>
+</footer>
+<style>
+/* Força o gráfico do iframe a ocupar mais espaço vertical */
+
+
+/* Alternativa: remove o padding do container do iframe */
+iframe {
+    padding-bottom: 0% !important;
+}
+
+/* Se ainda houver div com padding-bottom: 10% dentro da página */
+div[style*="padding-bottom: 10.0%"] {
+    padding-bottom: 100.0% !important;
+}
+</style>
 </body>
 </html>

@@ -20,6 +20,7 @@ def create_layout():
     # Gráfico de linha
     fig_linha = px.line(df, x='data_medicao', y='resultado', color='ponto_monitorado__nome', title='Tendência dos Resultados')
 
+
     # Gráfico de barras (médias por ponto)
     df_medias = df.groupby('ponto_monitorado__nome')['resultado'].mean().reset_index()
     fig_barras = px.bar(df_medias, x='ponto_monitorado__nome', y='resultado', title='Média de Resultados por Ponto')
@@ -35,30 +36,31 @@ def create_layout():
     fig_mapa.update_layout(mapbox_style="open-street-map")
     fig_mapa.update_layout(margin={"r":0,"t":0,"l":0,"b":0})
 
-    return dbc.Container([
-        dbc.Row(dbc.Col(html.H2("Dashboard de Monitoramento de Efluentes", className="text-center my-4"))),
+    lay = html.Div([
+        html.H2("Dashboard de Monitoramento de Efluentes", style={"textAlign": "center", "margin": "40px 0"}),
 
-        dbc.Row([dbc.Col(dcc.Graph(figure=fig_linha), md=12)], className="mb-4"),
-        dbc.Row([dbc.Col(dcc.Graph(figure=fig_barras), md=12)], className="mb-4"),
-        dbc.Row([dbc.Col(dcc.Graph(figure=fig_mapa), md=12)], className="mb-4"),
+        html.H4("Histórico de cada ponto monitorado", style={"margin": "20px 0"}),
+        dcc.Graph(figure=fig_linha, style={"height": "600px", "width": "100%"}),
 
-        dbc.Row(dbc.Col(html.H4("Tabela de Dados Monitorados", className="my-3"))),
+        html.H4("Gráfico de barra das médias em cada ponto", style={"margin": "40px 0 20px"}),
+        dcc.Graph(figure=fig_barras, style={"height": "600px", "width": "100%"}),
 
-        dbc.Row([
-            dbc.Col(
-                dash_table.DataTable(
-                    columns=[{'name': col, 'id': col} for col in df.columns],
-                    data=df.to_dict('records'),
-                    page_size=10,
-                    filter_action='native',
-                    sort_action='native',
-                    style_table={'overflowX': 'auto', 'maxHeight': '500px', 'overflowY': 'scroll'},
-                    style_cell={'textAlign': 'left', 'padding': '5px'},
-                    style_header={'backgroundColor': 'rgb(230, 230, 230)', 'fontWeight': 'bold'},
-                ),
-                width=12
-            )
-        ], className="mb-5"),
-    ], fluid=True)
+        html.H4("Mapa dos Pontos de Monitoramento", style={"margin": "40px 0 20px"}),
+        dcc.Graph(figure=fig_mapa, style={"height": "600px", "width": "100%"}),
+
+        html.H4("Tabela de Dados Monitorados", style={"margin": "40px 0 20px"}),
+        dash_table.DataTable(
+            columns=[{'name': col, 'id': col} for col in df.columns],
+            data=df.to_dict('records'),
+            page_size=10,
+            filter_action='native',
+            sort_action='native',
+            style_table={'overflowX': 'auto'},
+            style_cell={'textAlign': 'left', 'padding': '5px'},
+            style_header={'backgroundColor': 'rgb(230, 230, 230)', 'fontWeight': 'bold'},
+        )
+    ], style={"padding": "0px", "margin": "0px"})
+
+    return lay
 
 app.layout = create_layout
