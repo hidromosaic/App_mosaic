@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
     UnidadeMedicao, Parametro, UnidadeEmpresarial, PontoMonitoramento, Usuario,
-    Relatorio, MonitoramentoEfluente, ListaPresenca, EducacaoAmbiental, ControleResiduo
+    Relatorio, EfluentesLiquidos, Emissoes, Ruidos, ListaPresenca, EducacaoAmbiental, ControleResiduo
 )
 
 @admin.register(Usuario)
@@ -20,7 +20,7 @@ class UsuarioAdmin(UserAdmin):
     list_display = ("username", "email", "first_name", "last_name", "is_staff", "unidade")
     search_fields = ("username", "email", "unidade__nome")
 
-class MonitoramentoEfluenteAdmin(admin.ModelAdmin):
+class MonitoramentosAdmin(admin.ModelAdmin):
     list_display = ('ponto_monitorado', 'data_medicao', 'parametro', 'resultado', 'inserido_por')
     readonly_fields = ('inserido_por',)
 
@@ -32,12 +32,16 @@ class MonitoramentoEfluenteAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
+
+
 admin.site.register(UnidadeMedicao)
 admin.site.register(Parametro)
 admin.site.register(UnidadeEmpresarial)
 admin.site.register(PontoMonitoramento)
 admin.site.register(Relatorio)
-admin.site.register(MonitoramentoEfluente, MonitoramentoEfluenteAdmin)
+admin.site.register(EfluentesLiquidos, MonitoramentosAdmin)
+admin.site.register(Emissoes, MonitoramentosAdmin)
+admin.site.register(Ruidos, MonitoramentosAdmin)
 admin.site.register(ListaPresenca)
 admin.site.register(EducacaoAmbiental)
 admin.site.register(ControleResiduo)

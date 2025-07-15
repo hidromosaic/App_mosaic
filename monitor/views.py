@@ -4,8 +4,8 @@ from django.contrib import messages
 
 from datetime import timedelta
 
-from .models import MonitoramentoEfluente
-from .forms import MonitoramentoEfluenteForm
+from .models import EfluentesLiquidos, Emissoes, Ruidos
+from .forms import EfluentesLiquidosForm, EmissoesForm, RuidosForm
 from .models import EducacaoAmbiental
 from .forms import EducacaoAmbientalForm
 from .models import ControleResiduo, ListaPresenca, Relatorio
@@ -21,11 +21,13 @@ def is_gerenciador(user):
 def is_tecnico(user):
     return user.groups.filter(name='Tecnico').exists()
 
+def home(request):
+    return render(request, 'monitor/home.html')
 
 @login_required
-def adicionar_monitoramento(request):
+def adicionar_efluente_liquido(request):
     if request.method == 'POST':
-        form = MonitoramentoEfluenteForm(request.POST, user=request.user)
+        form = EfluentesLiquidosForm(request.POST, user=request.user)
         if form.is_valid():
             monitoramento = form.save(commit=False)
             monitoramento.inserido_por = request.user
@@ -33,44 +35,44 @@ def adicionar_monitoramento(request):
             monitoramento.save()
             messages.success(
                 request,
-                f"Monitoramento salvo com sucesso. Conformidade: {monitoramento.conformidade}"
+                f"Monitoramento de efluente liquido salvo com sucesso. Conformidade: {monitoramento.conformidade}"
             )
-            return redirect('listar_monitoramentos')
+            return redirect('listar_efluentes')
     else:
-        form = MonitoramentoEfluenteForm(user=request.user)
-    return render(request, 'monitor/adicionar.html', {'form': form})
+        form = EfluentesLiquidosForm(user=request.user)
+    return render(request, 'monitor/adicionar_efluentes_liquidos.html', {'form': form})
 
 @login_required
 @user_passes_test(is_gerenciador)
-def editar_monitoramento(request, pk):
-    obj = get_object_or_404(MonitoramentoEfluente, pk=pk)
+def editar_efluente_liquido(request, pk):
+    obj = get_object_or_404(EfluentesLiquidos, pk=pk)
     if request.method == 'POST':
-        form = MonitoramentoEfluenteForm(request.POST, instance=obj, user=request.user)
+        form = EfluentesLiquidosForm(request.POST, instance=obj, user=request.user)
         if form.is_valid():
             monitoramento = form.save(commit=False)
             monitoramento.inserido_por = request.user  # Se quiser atualizar também na edição
             monitoramento.unidade_empresarial = request.user.unidade
             monitoramento.save()
-            return redirect('listar_monitoramentos')
+            return redirect('listar_efluentes')
     else:
-        form = MonitoramentoEfluenteForm(instance=obj, user=request.user)
-    return render(request, 'monitor/form.html', {'form': form})
+        form = EfluentesLiquidosForm(instance=obj, user=request.user)
+    return render(request, 'monitor/form_efluente_liquido.html', {'form': form})
 
 @login_required
 @user_passes_test(is_gerenciador)
-def excluir_monitoramento(request, pk):
-    monitoramento = get_object_or_404(MonitoramentoEfluente, pk=pk)
+def excluir_efluente_liquido(request, pk):
+    monitoramento = get_object_or_404(EfluentesLiquidos, pk=pk)
     monitoramento.delete()
-    return redirect('listar_monitoramentos')
+    return redirect('listar_efluentes')
 
 @login_required
-def listar_monitoramentos(request):
+def listar_efluentes(request):
     usuario = request.user
     unidade = usuario.unidade
 
     query = request.GET.get('q')
 
-    monitoramentos = MonitoramentoEfluente.objects.filter(ponto_monitorado__unidade_empresarial=unidade)
+    monitoramentos = EfluentesLiquidos.objects.filter(ponto_monitorado__unidade_empresarial=unidade)
 
     if query:
         monitoramentos = monitoramentos.filter(
@@ -80,7 +82,130 @@ def listar_monitoramentos(request):
             Q(conformidade__icontains=query)
         )
 
-    return render(request, 'monitor/listar.html', {'monitoramentos': monitoramentos, 'query': query})
+    return render(request, 'monitor/listar_efluentes.html', {'monitoramentos': monitoramentos, 'query': query})
+
+
+#Emissões Atmosféricas
+@login_required
+def adicionar_emissoes(request):
+    if request.method == 'POST':
+        form = EmissoesForm(request.POST, user=request.user)
+        if form.is_valid():
+            monitoramento = form.save(commit=False)
+            monitoramento.inserido_por = request.user
+            monitoramento.unidade_empresarial = request.user.unidade
+            monitoramento.save()
+            messages.success(
+                request,
+                f"Monitoramento de emissões atmosféricas salvo com sucesso. Conformidade: {monitoramento.conformidade}"
+            )
+            return redirect('listar_emissoes')
+    else:
+        form = EmissoesForm(user=request.user)
+    return render(request, 'monitor/adicionar_emissoes.html', {'form': form})
+
+@login_required
+@user_passes_test(is_gerenciador)
+def editar_emissoes(request, pk):
+    obj = get_object_or_404(Emissoes, pk=pk)
+    if request.method == 'POST':
+        form = EmissoesForm(request.POST, instance=obj, user=request.user)
+        if form.is_valid():
+            monitoramento = form.save(commit=False)
+            monitoramento.inserido_por = request.user  # Se quiser atualizar também na edição
+            monitoramento.unidade_empresarial = request.user.unidade
+            monitoramento.save()
+            return redirect('listar_emissoes')
+    else:
+        form = EmissoesForm(instance=obj, user=request.user)
+    return render(request, 'monitor/form_emissoes.html', {'form': form})
+
+@login_required
+@user_passes_test(is_gerenciador)
+def excluir_emissoes(request, pk):
+    monitoramento = get_object_or_404(Emissoes, pk=pk)
+    monitoramento.delete()
+    return redirect('listar_emissoes')
+
+@login_required
+def listar_emissoes(request):
+    usuario = request.user
+    unidade = usuario.unidade
+
+    query = request.GET.get('q')
+
+    monitoramentos = Emissoes.objects.filter(ponto_monitorado__unidade_empresarial=unidade)
+
+    if query:
+        monitoramentos = monitoramentos.filter(
+            Q(ponto_monitorado__nome__icontains=query) |
+            Q(parametro__nome__icontains=query) |
+            Q(data_medicao__icontains=query) |
+            Q(conformidade__icontains=query)
+        )
+
+    return render(request, 'monitor/listar_emissoes.html', {'monitoramentos': monitoramentos, 'query': query})
+
+#Ruídos
+@login_required
+def adicionar_ruido(request):
+    if request.method == 'POST':
+        form = RuidosForm(request.POST, user=request.user)
+        if form.is_valid():
+            monitoramento = form.save(commit=False)
+            monitoramento.inserido_por = request.user
+            monitoramento.unidade_empresarial = request.user.unidade
+            monitoramento.save()
+            messages.success(
+                request,
+                f"Monitoramento de ruido salvo com sucesso. Conformidade: {monitoramento.conformidade}"
+            )
+            return redirect('listar_ruidos')
+    else:
+        form = RuidosForm(user=request.user)
+    return render(request, 'monitor/adicionar_ruido.html', {'form': form})
+
+@login_required
+@user_passes_test(is_gerenciador)
+def editar_ruido(request, pk):
+    obj = get_object_or_404(Ruidos, pk=pk)
+    if request.method == 'POST':
+        form = RuidosForm(request.POST, instance=obj, user=request.user)
+        if form.is_valid():
+            monitoramento = form.save(commit=False)
+            monitoramento.inserido_por = request.user  # Se quiser atualizar também na edição
+            monitoramento.unidade_empresarial = request.user.unidade
+            monitoramento.save()
+            return redirect('listar_ruidos')
+    else:
+        form = RuidosForm(instance=obj, user=request.user)
+    return render(request, 'monitor/form_ruido.html', {'form': form})
+
+@login_required
+@user_passes_test(is_gerenciador)
+def excluir_ruidos(request, pk):
+    monitoramento = get_object_or_404(Ruidos, pk=pk)
+    monitoramento.delete()
+    return redirect('listar_ruidos')
+
+@login_required
+def listar_ruidos(request):
+    usuario = request.user
+    unidade = usuario.unidade
+
+    query = request.GET.get('q')
+
+    monitoramentos = Ruidos.objects.filter(ponto_monitorado__unidade_empresarial=unidade)
+
+    if query:
+        monitoramentos = monitoramentos.filter(
+            Q(ponto_monitorado__nome__icontains=query) |
+            Q(parametro__nome__icontains=query) |
+            Q(data_medicao__icontains=query) |
+            Q(conformidade__icontains=query)
+        )
+
+    return render(request, 'monitor/listar_ruidos.html', {'monitoramentos': monitoramentos, 'query': query})
 
 
 #Educação Ambiental
@@ -243,7 +368,7 @@ def listar_relatorios(request):
 
     query = request.GET.get('q')
 
-    relatorios = Relatorio.objects.filter(unidade=unidade)
+    relatorios = Relatorio.objects.filter(unidade_empresarial=unidade)
 
     if query:
         relatorios = relatorios.filter(
@@ -257,7 +382,7 @@ def adicionar_relatorio(request):
         form = RelatorioForm(request.POST, user=request.user)
         if form.is_valid():
             instance = form.save(commit=False)
-            instance.unidade = request.user.unidade
+            instance.unidade_empresarial = request.user.unidade
             instance.inserido_por = request.user
             instance.save()
             return redirect('listar_relatorios')
@@ -272,7 +397,7 @@ def editar_relatorio(request, pk):
         form = RelatorioForm(request.POST, instance=relatorio, user=request.user)
         if form.is_valid():
             instance = form.save(commit=False)
-            instance.unidade = request.user.unidade
+            instance.unidade_empresarial = request.user.unidade
             instance.inserido_por = request.user
             instance.save()
             return redirect('listar_relatorios')
@@ -302,19 +427,19 @@ def dashboard(request):
     data_inicial = data_final - timedelta(days=30)
 
     # Contagem de conformidade e não conformidade no período
-    conformes = MonitoramentoEfluente.objects.filter(
+    conformes = EfluentesLiquidos.objects.filter(
         conformidade='Conforme',
         data_medicao__range=(data_inicial, data_final)
     ).count()
 
-    nao_conformes = MonitoramentoEfluente.objects.filter(
+    nao_conformes = EfluentesLiquidos.objects.filter(
         conformidade='Não Conforme',
         data_medicao__range=(data_inicial, data_final)
     ).count()
 
     # Dados por tipo de efluente
     por_tipo = (
-        MonitoramentoEfluente.objects
+        EfluentesLiquidos.objects
         .filter(data_medicao__range=(data_inicial, data_final))
         .values('tipo_efluente')
         .order_by('tipo_efluente')

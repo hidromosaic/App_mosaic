@@ -1,6 +1,6 @@
 {% extends 'monitor/base.html' %}
 {% block content %}
-<h2>{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Monitoramento de Efluente</h2>
+<h2>{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Ruído</h2>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}

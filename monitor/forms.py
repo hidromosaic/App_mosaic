@@ -1,10 +1,10 @@
 from django import forms
-from .models import  MonitoramentoEfluente, Parametro, UnidadeMedicao, UnidadeEmpresarial, PontoMonitoramento, EducacaoAmbiental, ListaPresenca, ControleResiduo, Relatorio
+from .models import  EfluentesLiquidos, Emissoes, Ruidos, Parametro, UnidadeMedicao, UnidadeEmpresarial, PontoMonitoramento, EducacaoAmbiental, ListaPresenca, ControleResiduo, Relatorio
 
 
-class MonitoramentoEfluenteForm(forms.ModelForm):
+class EfluentesLiquidosForm(forms.ModelForm):
     class Meta:
-        model = MonitoramentoEfluente
+        model = EfluentesLiquidos
         exclude = ['conformidade', 'inserido_por', 'unidade_empresarial']
         widgets = {
             'data_medicao': forms.DateInput(attrs={'type': 'date'}),
@@ -19,6 +19,44 @@ class MonitoramentoEfluenteForm(forms.ModelForm):
             self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
         else:
             self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+
+class EmissoesForm(forms.ModelForm):
+    class Meta:
+        model = Emissoes
+        exclude = ['conformidade', 'inserido_por', 'unidade_empresarial']
+        widgets = {
+            'data_medicao': forms.DateInput(attrs={'type': 'date'}),
+            'justificativa': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # pega o user passado pela view
+        super().__init__(*args, **kwargs)
+
+        if user and hasattr(user, 'unidade'):
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
+        else:
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+
+class RuidosForm(forms.ModelForm):
+    class Meta:
+        model = Ruidos
+        exclude = ['conformidade', 'inserido_por', 'unidade_empresarial']
+        widgets = {
+            'data_medicao': forms.DateInput(attrs={'type': 'date'}),
+            'justificativa': forms.Textarea(attrs={'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)  # pega o user passado pela view
+        super().__init__(*args, **kwargs)
+
+        if user and hasattr(user, 'unidade'):
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
+        else:
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+
+
 
 class ParametroForm(forms.ModelForm):
     class Meta:
@@ -78,7 +116,7 @@ class ControleResiduoForm(forms.ModelForm):
 class RelatorioForm(forms.ModelForm):
     class Meta:
         model = Relatorio
-        exclude = ['unidade', 'inserido_por']
+        exclude = ['unidade_empresarial', 'inserido_por']
         widgets = {
             'data': forms.DateInput(attrs={'type': 'date'}),
         }

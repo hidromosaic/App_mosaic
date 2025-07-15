@@ -3,10 +3,24 @@ from django.contrib.auth.decorators import login_required
 from . import views
 
 urlpatterns = [
-    path('', login_required(views.listar_monitoramentos), name='listar_monitoramentos'),
-    path('novo/', login_required(views.adicionar_monitoramento), name='adicionar_monitoramento'),
-    path('editar/<int:pk>/', login_required(views.editar_monitoramento), name='editar_monitoramento'),
-    path('excluir/<int:pk>/', login_required(views.excluir_monitoramento), name='excluir_monitoramento'),
+    path('', views.home, name='home'),
+    #Efluentes Liquidos
+    path('efluentes/', login_required(views.listar_efluentes), name='listar_efluentes'),
+    path('efluentes/novo/', login_required(views.adicionar_efluente_liquido), name='adicionar_efluente_liquido'),
+    path('efluentes/editar/<int:pk>/', login_required(views.editar_efluente_liquido), name='editar_efluente_liquido'),
+    path('efluentes/excluir/<int:pk>/', login_required(views.excluir_efluente_liquido), name='excluir_efluente_liquido'),
+
+    #Emissões Atmosfericas
+    path('emissoes/', login_required(views.listar_emissoes), name='listar_emissoes'),
+    path('emissoes/novo/', login_required(views.adicionar_emissoes), name='adicionar_emissoes'),
+    path('emissoes/editar/<int:pk>/', login_required(views.editar_emissoes), name='editar_emissoes'),
+    path('emissoes/excluir/<int:pk>/', login_required(views.excluir_emissoes), name='excluir_emissoes'),
+
+    #Ruídos
+    path('ruidos/', login_required(views.listar_ruidos), name='listar_ruidos'),
+    path('ruidos/novo/', login_required(views.adicionar_ruido), name='adicionar_ruido'),
+    path('ruidos/editar/<int:pk>/', login_required(views.editar_ruido), name='editar_ruido'),
+    path('ruidos/excluir/<int:pk>/', login_required(views.excluir_ruidos), name='excluir_ruidos'),
 
     # Educação Ambiental
     path('educacao/', views.listar_educacao, name='listar_educacao'),

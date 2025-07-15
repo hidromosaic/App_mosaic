@@ -1,7 +1,7 @@
 {% extends 'monitor/base.html' %}
 {% block content %}
-<h2>Monitoramentos de Efluentes</h2>
-<a href="{% url 'adicionar_monitoramento' %}">Adicionar Novo</a>
+<h2>Emissões Atmosféricas</h2>
+<a href="{% url 'adicionar_emissoes' %}">Adicionar Novo</a>
 <form method="get" class="mb-3">
     <input type="text" name="q" placeholder="Filtrar por descrição ou ponto" value="{{ query|default_if_none:'' }}">
     <button type="submit">Filtrar</button>
@@ -32,8 +32,8 @@
             </td>
             <td>
                 {% if user.groups.first.name == 'Gerenciador' %}
-                    <a href="{% url 'editar_monitoramento' m.id %}">Editar</a>
-                    <a href="{% url 'excluir_monitoramento' m.id %}">Excluir</a>
+                    <a href="{% url 'editar_emissoes' m.id %}">Editar</a>
+                    <a href="{% url 'excluir_emissoes' m.id %}">Excluir</a>
                 {% endif %}
             </td>
             <td>{{ m.inserido_por }}</td>

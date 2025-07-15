@@ -121,18 +121,24 @@
         tr:nth-child(even) {
             background-color: #f1f8e9;
         }
+
+        
     </style>
 </head>
 <body>
   <div style="background-color: #ffffff; padding: 10px 20px; display: flex; align-items: center;">
+      <a href="{% url 'home' %}">
       <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 60px; margin-right: 20px;">
+    </a>
       <h1 style="color: #2e7d32; margin: 0;">Sistema de Monitoramento</h1>
   </div>
 <!-- MENU SUPERIOR -->
 <div class="menu-superior">
     <ul>
         {% if user.is_authenticated %}
-            <li><a href="{% url 'listar_monitoramentos' %}">Monitoramentos</a></li>
+            <li><a href="{% url 'listar_efluentes' %}">Efluentes Liquidos</a></li>
+            <li><a href="{% url 'listar_emissoes' %}">Emissões Atmosféricas</a></li>
+            <li><a href="{% url 'listar_ruidos' %}">Ruídos</a></li>
             <li><a href="{% url 'listar_educacao' %}">Educação Ambiental</a></li>
             <li><a href="{% url 'listar_residuos' %}">Resíduos Sólidos</a></li>
             <li><a href="{% url 'listar_relatorios' %}">Relatórios</a></li>
@@ -178,7 +184,10 @@
 
 <footer style="background-color: #e8f5e9; color: #2e7d32; padding: 20px 0; text-align: center; margin-top: 40px; border-top: 2px solid #a5d6a7;">
     <p style="margin: 0;">&copy; 2025 HidroMosaic. Todos os direitos reservados.</p>
-    <p style="margin: 0; font-size: 0.9em;">Desenvolvido por HIDROBR</p>
+    <p style="margin: 0; font-size: 0.9em;">Desenvolvido por</p>
+    <a href="https://www.hidrobr.com/" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #2e7d32;">
+      <p style="margin: 0; font-size: 0.9em;">HIDROBR </p>
+  </a>
 </footer>
 <style>
 /* Força o gráfico do iframe a ocupar mais espaço vertical */

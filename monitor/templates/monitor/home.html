@@ -1,0 +1,48 @@
+{% extends 'monitor/base.html' %}
+{% load static %}
+
+{% block title %}Página Inicial - Monitoramento Ambiental{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Bem-vindo ao Sistema de Monitoramento Ambiental</h1>
+
+    <p class="lead text-center mb-5">
+        Acompanhe os dados de monitoramento de Efluentes Líquidos, Emissões Atmosféricas e Ruídos.
+    </p>
+
+    <div class="row justify-content-center">
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Efluentes Líquidos</h3>
+                    <p class="card-text">Dados sobre efluentes pluvial, sanitário e industrial.</p>
+                    <a href="{% url 'listar_efluentes' %}" class="btn btn-primary">Ver Efluentes</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Emissões</h3>
+                    <p class="card-text">Monitoramento de emissões atmosféricas, qualidade do ar e fumaça preta.</p>
+                    <a href="{% url 'listar_emissoes' %}" class="btn btn-primary">Ver Emissões</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Ruídos</h3>
+                    <p class="card-text">Dados sobre ruídos diurnos e noturnos.</p>
+                    <a href="{% url 'listar_ruidos' %}" class="btn btn-primary">Ver Ruídos</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
