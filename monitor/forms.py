@@ -5,56 +5,99 @@ from .models import  EfluentesLiquidos, Emissoes, Ruidos, Parametro, UnidadeMedi
 class EfluentesLiquidosForm(forms.ModelForm):
     class Meta:
         model = EfluentesLiquidos
-        exclude = ['conformidade', 'inserido_por', 'unidade_empresarial']
+        exclude = ['conformidade', 'inserido_por']
         widgets = {
             'data_medicao': forms.DateInput(attrs={'type': 'date'}),
             'justificativa': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # pega o user passado pela view
+        user = kwargs.pop('user', None)  # Pega o user passado pela view
         super().__init__(*args, **kwargs)
 
+        self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+
         if user and hasattr(user, 'unidade'):
-            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
-        else:
-            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+            unidades = user.unidade.all()  # Assume ManyToManyField
+
+            # Filtra pontos monitorados conforme unidades do usuário
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades)
+
+            # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
+            self.fields['unidade_empresarial'] = forms.ModelChoiceField(
+                queryset=unidades,
+                required=True,
+                label="Unidade Empresarial"
+            )
+
+            if unidades.count() == 1:
+                # Se só tem uma, oculta o campo e define o valor
+                self.fields['unidade_empresarial'].widget = forms.HiddenInput()
+                self.initial['unidade_empresarial'] = unidades.first()
 
 class EmissoesForm(forms.ModelForm):
     class Meta:
         model = Emissoes
-        exclude = ['conformidade', 'inserido_por', 'unidade_empresarial']
+        exclude = ['conformidade', 'inserido_por']
         widgets = {
             'data_medicao': forms.DateInput(attrs={'type': 'date'}),
             'justificativa': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # pega o user passado pela view
+        user = kwargs.pop('user', None)  # Pega o user passado pela view
         super().__init__(*args, **kwargs)
 
+        self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+
         if user and hasattr(user, 'unidade'):
-            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
-        else:
-            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+            unidades = user.unidade.all()  # Assume ManyToManyField
+
+            # Filtra pontos monitorados conforme unidades do usuário
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades)
+
+            # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
+            self.fields['unidade_empresarial'] = forms.ModelChoiceField(
+                queryset=unidades,
+                required=True,
+                label="Unidade Empresarial"
+            )
+
+            if unidades.count() == 1:
+                # Se só tem uma, oculta o campo e define o valor
+                self.fields['unidade_empresarial'].widget = forms.HiddenInput()
+                self.initial['unidade_empresarial'] = unidades.first()
 
 class RuidosForm(forms.ModelForm):
     class Meta:
         model = Ruidos
-        exclude = ['conformidade', 'inserido_por', 'unidade_empresarial']
+        exclude = ['conformidade', 'inserido_por']
         widgets = {
             'data_medicao': forms.DateInput(attrs={'type': 'date'}),
             'justificativa': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)  # pega o user passado pela view
+        user = kwargs.pop('user', None)  # Pega o user passado pela view
         super().__init__(*args, **kwargs)
 
+        self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+
         if user and hasattr(user, 'unidade'):
-            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
-        else:
-            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.none()
+            unidades = user.unidade.all()  # Assume ManyToManyField
+
+            # Filtra pontos monitorados conforme unidades do usuário
+            self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades)
+
+            # Define queryset do campo unidade_empresarial com base nas unidades do usuário
+            self.fields['unidade_empresarial'].queryset = unidades
+            self.fields['unidade_empresarial'].required = True
+            self.fields['unidade_empresarial'].label = "Unidade Empresarial"
+
+            if unidades.count() == 1:
+                # Se só tem uma, oculta o campo e define o valor
+                self.fields['unidade_empresarial'].widget = forms.HiddenInput()
+                self.initial['unidade_empresarial'] = unidades.first()
 
 
 
@@ -81,18 +124,28 @@ class PontoMonitoradoForm(forms.ModelForm):
 class EducacaoAmbientalForm(forms.ModelForm):
     class Meta:
         model = EducacaoAmbiental
-        exclude = ['unidade_empresarial', 'inserido_por']
+        exclude = ['inserido_por']
         widgets = {
             'data_planejada': forms.DateInput(attrs={'type': 'date'}),
             'data_executada': forms.DateInput(attrs={'type': 'date'}),
             'atividade': forms.Textarea(attrs={'rows': 3}),
         }
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        user = kwargs.pop('user', None)  # Pega o user passado pela view
         super().__init__(*args, **kwargs)
 
-        #if user and hasattr(user, 'unidade'):
-        #    self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
+        if user and hasattr(user, 'unidade'):
+            unidades = user.unidade.all()  # Assume ManyToManyField
+
+            # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
+            self.fields['unidade_empresarial'].queryset = unidades
+            self.fields['unidade_empresarial'].required = True
+            self.fields['unidade_empresarial'].label = "Unidade Empresarial"
+
+            if unidades.count() == 1:
+                # Se só tem uma, oculta o campo e define o valor
+                self.fields['unidade_empresarial'].widget = forms.HiddenInput()
+                self.initial['unidade_empresarial'] = unidades.first()
 
 class ListaPresencaForm(forms.ModelForm):
     class Meta:
@@ -102,27 +155,53 @@ class ListaPresencaForm(forms.ModelForm):
 class ControleResiduoForm(forms.ModelForm):
     class Meta:
         model = ControleResiduo
-        exclude = ['unidade_empresarial', 'inserido_por']
+        exclude = ['inserido_por']
         widgets = {
             'data_emissao': forms.DateInput(attrs={'type': 'date'}),
         }
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        user = kwargs.pop('user', None)  # Pega o user passado pela view
         super().__init__(*args, **kwargs)
 
-        #if user and hasattr(user, 'unidade'):
-        #    self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial=user.unidade)
+
+        if user and hasattr(user, 'unidade'):
+            unidades = user.unidade.all()  # Assume ManyToManyField
+
+            # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
+            self.fields['unidade_empresarial'] = forms.ModelChoiceField(
+                queryset=unidades,
+                required=True,
+                label="Unidade Empresarial"
+            )
+
+            if unidades.count() == 1:
+                # Se só tem uma, oculta o campo e define o valor
+                self.fields['unidade_empresarial'].widget = forms.HiddenInput()
+                self.initial['unidade_empresarial'] = unidades.first()
 
 class RelatorioForm(forms.ModelForm):
     class Meta:
         model = Relatorio
-        exclude = ['unidade_empresarial', 'inserido_por']
+        exclude = [ 'inserido_por']
         widgets = {
             'data': forms.DateInput(attrs={'type': 'date'}),
         }
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        user = kwargs.pop('user', None)  # Pega o user passado pela view
         super().__init__(*args, **kwargs)
 
-        #if user and hasattr(user, 'unidade'):
-        #    self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade=user.unidade)
+
+        if user and hasattr(user, 'unidade'):
+            unidades = user.unidade.all()  # Assume ManyToManyField
+
+            # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
+            self.fields['unidade_empresarial'] = forms.ModelChoiceField(
+                queryset=unidades,
+                required=True,
+                label="Unidade Empresarial"
+            )
+
+            if unidades.count() == 1:
+                # Se só tem uma, oculta o campo e define o valor
+                self.fields['unidade_empresarial'].widget = forms.HiddenInput()
+                self.initial['unidade_empresarial'] = unidades.first()

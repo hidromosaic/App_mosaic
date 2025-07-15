@@ -122,7 +122,7 @@
             background-color: #f1f8e9;
         }
 
-        
+
     </style>
 </head>
 <body>
@@ -163,7 +163,16 @@
 {% if user.is_authenticated %}
     <div class="user-info">
         <strong>Usuário:</strong> {{ user.get_full_name|default:user.username }} |
-        <strong>Unidade Empresarial:</strong> {{ user.unidade }}
+        <strong>Unidade Empresarial:</strong>
+        {% if user.unidade.all %}
+            {% for unidade in user.unidade.all %}
+                {{ unidade }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                Nenhuma unidade vinculada
+            {% endfor %}
+        {% else %}
+            Nenhuma unidade vinculada
+        {% endif %}
     </div>
 {% endif %}
 

@@ -17,8 +17,12 @@ class UsuarioAdmin(UserAdmin):
             "fields": ("unidade",),
         }),
     )
-    list_display = ("username", "email", "first_name", "last_name", "is_staff", "unidade")
-    search_fields = ("username", "email", "unidade__nome")
+    list_display = ("username", "email", "first_name", "last_name", "is_staff", "listar_unidades")
+    search_fields = ("username", "email", "unidade__unidade")
+
+    def listar_unidades(self, obj):
+        return ", ".join([str(u) for u in obj.unidade.all()])
+    listar_unidades.short_description = "Unidades"
 
 class MonitoramentosAdmin(admin.ModelAdmin):
     list_display = ('ponto_monitorado', 'data_medicao', 'parametro', 'resultado', 'inserido_por')

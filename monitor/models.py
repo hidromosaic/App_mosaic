@@ -47,7 +47,7 @@ class Parametro(models.Model):
         return self.nome
 
 class Usuario(AbstractUser):
-    unidade = models.ForeignKey(UnidadeEmpresarial, on_delete=models.SET_NULL, null=True, blank=True)
+    unidade = models.ManyToManyField(UnidadeEmpresarial, blank=True, related_name='usuarios')
 
 
 class PontoMonitoramento(models.Model):
@@ -152,7 +152,7 @@ class Emissoes(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.tipo_emissoes} - {self.ponto_monitorado} - {self.data_medicao}"
+        return f"{self.tipo_emissao} - {self.ponto_monitorado} - {self.data_medicao}"
 
 
 class Ruidos(models.Model):
