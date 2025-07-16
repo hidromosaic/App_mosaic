@@ -10,6 +10,7 @@
 <table class="table table-striped mt-3">
     <thead>
         <tr>
+            <th>Unidade Empresarial</th>
             <th>Nome</th>
             <th>Unidade</th>
             <th>Revisão</th>
@@ -20,6 +21,7 @@
     <tbody>
         {% for relatorio in relatorios %}
         <tr>
+            <td>{{ relatorio.unidade_empresarial }}</td>
             <td>{{ relatorio.nome }}</td>
             <td>{{ relatorio.unidade }}</td>
             <td>{{ relatorio.revisao }}</td>

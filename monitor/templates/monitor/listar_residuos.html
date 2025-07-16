@@ -10,6 +10,7 @@
 <table class="table table-striped mt-3">
     <thead>
         <tr>
+            <th>Unidade Empresarial</th>
             <th>Código</th>
             <th>Nome</th>
             <th>Data de Emissão</th>
@@ -20,6 +21,7 @@
     <tbody>
         {% for residuo in residuos %}
         <tr>
+            <td>{{ residuo.unidade_empresarial }}</td>
             <td>{{ residuo.codigo_residuo }}</td>
             <td>{{ residuo.nome_residuo }}</td>
             <td>{{ residuo.data_emissao }}</td>
