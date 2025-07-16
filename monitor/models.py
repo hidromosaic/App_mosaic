@@ -76,6 +76,12 @@ class Relatorio(models.Model):
         editable=False,
         related_name='relatorios_inseridos'
     )
+    arquivo_pdf = models.FileField(
+        upload_to='relatorios_pdfs/',
+        blank=True,
+        null=True,
+        verbose_name='Inserir Relatório PDF'
+    )
 
     def __str__(self):
         return self.nome
@@ -226,6 +232,12 @@ class EducacaoAmbiental(models.Model):
         blank=True,
         editable=False,
         related_name='educacao_inseridos'
+    )
+    arquivo_pdf = models.FileField(
+        upload_to='presenca_pdfs/',
+        blank=True,
+        null=True,
+        verbose_name='Inserir Lista PDF'
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

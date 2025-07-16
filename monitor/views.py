@@ -256,7 +256,7 @@ def listar_educacao(request):
 @login_required
 def adicionar_educacao(request):
     if request.method == 'POST':
-        form = EducacaoAmbientalForm(request.POST, user=request.user)
+        form = EducacaoAmbientalForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             instance = form.save(commit=False)
             if not instance.unidade_empresarial:
@@ -419,7 +419,7 @@ def listar_relatorios(request):
 @login_required
 def adicionar_relatorio(request):
     if request.method == 'POST':
-        form = RelatorioForm(request.POST, user=request.user)
+        form = RelatorioForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
             instance = form.save(commit=False)
             if not instance.unidade_empresarial:

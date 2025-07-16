@@ -27,6 +27,7 @@
             <td>{{ relatorio.revisao }}</td>
             <td>{{ relatorio.data }}</td>
             <td>
+                <a href="{{ relatorio.arquivo_pdf.url }}" target="_blank">Abrir PDF</a> |
                 <a href="{% url 'editar_relatorio' relatorio.id %}">Editar</a>
                 {% if user|has_group:"Gerenciador" %} |
                 <a href="{% url 'excluir_relatorio' relatorio.id %}">Excluir</a>
