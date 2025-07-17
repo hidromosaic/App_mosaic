@@ -6,4 +6,4 @@ class MonitorConfig(AppConfig):
     name = "monitor"
 
     def ready(self):
-        import monitor.dash_apps.finished_apps.dashboard_monitoramento
+        import monitor.dash_apps.dashboard

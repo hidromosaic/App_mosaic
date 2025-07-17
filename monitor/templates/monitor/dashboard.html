@@ -6,20 +6,37 @@
     <meta charset="UTF-8">
     <title>Dashboard de Monitoramento</title>
 
-
-
-    <!-- plotly_dash CSS/JS includes -->
-    {{ plotly_header }}
-    {{ plotly_required }}
 </head>
 <body class="bg-light">
 
     <div class="container mt-5">
-        <h1 class="mb-4 text-center">Dashboard de Monitoramento de Efluentes</h1>
+        <h1 class="mb-4 text-center">Dashboard de Monitoramento de Efluentes Líquidos</h1>
 
         <!-- DASH COMPONENT -->
         <div class="card p-4 shadow-sm">
-            {% plotly_app name="dashboard_monitoramento" %}
+          {% for grafico in graficos_efluentes %}
+            {{ grafico|safe }}
+          {% endfor %}
+        </div>
+    </div>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Dashboard de Monitoramento de Emissões Atmosféricas</h1>
+
+        <!-- DASH COMPONENT -->
+        <div class="card p-4 shadow-sm">
+          {% for grafico in graficos_emissoes %}
+              {{ grafico|safe }}
+          {% endfor %}
+        </div>
+    </div>
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center">Dashboard de Monitoramento de Ruídos</h1>
+
+        <!-- DASH COMPONENT -->
+        <div class="card p-4 shadow-sm">
+          {% for grafico in graficos_ruidos %}
+              {{ grafico|safe }}
+          {% endfor %}
         </div>
     </div>
 

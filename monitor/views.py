@@ -1,3 +1,6 @@
+import plotly.graph_objs as go
+import plotly.offline as opy
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test, permission_required
 from django.contrib import messages
@@ -6,7 +9,7 @@ from datetime import timedelta
 
 from .models import EfluentesLiquidos, Emissoes, Ruidos
 from .forms import EfluentesLiquidosForm, EmissoesForm, RuidosForm
-from .models import EducacaoAmbiental
+from .models import EducacaoAmbiental, Parametro
 from .forms import EducacaoAmbientalForm
 from .models import ControleResiduo, ListaPresenca, Relatorio
 from .forms import ControleResiduoForm, ListaPresencaForm, RelatorioForm
@@ -15,6 +18,37 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
+
+def gerar_grafico_historico(modelo, usuario, titulo):
+    unidades = usuario.unidade.all()
+    dados = modelo.objects.filter(unidade_empresarial__in=unidades)
+
+    # Organiza por parâmetro
+    graficos = []
+    parametros = dados.values_list('parametro__nome', flat=True).distinct()
+
+    for parametro in parametros:
+        fig = go.Figure()
+        pontos = dados.filter(parametro__nome=parametro).values_list('ponto_monitorado__nome', flat=True).distinct()
+
+        for ponto in pontos:
+            registros = dados.filter(parametro__nome=parametro, ponto_monitorado__nome=ponto).order_by('data_medicao')
+            datas = [r.data_medicao for r in registros]
+            resultados = [r.resultado for r in registros]
+
+            fig.add_trace(go.Scatter(
+                x=datas,
+                y=resultados,
+                mode='lines+markers',
+                name=ponto
+            ))
+
+        fig.update_layout(title=f'{titulo} - {parametro}', xaxis_title='Data', yaxis_title='Resultado')
+
+        # Converte para HTML
+        graficos.append(opy.plot(fig, auto_open=False, output_type='div'))
+
+    return graficos
 
 def is_gerenciador(user):
     return user.groups.filter(name='Gerenciador').exists()
@@ -495,40 +529,17 @@ def is_gerenciador(user):
 @user_passes_test(is_gerenciador)
 def dashboard(request):
     usuario = request.user
-    unidade = usuario.unidade.all()
-    # Período dos últimos 30 dias
-    data_final = timezone.now()
-    data_inicial = data_final - timedelta(days=30)
+    graficos_efluentes = gerar_grafico_historico(EfluentesLiquidos, usuario, 'Efluentes Líquidos')
+    graficos_emissoes = gerar_grafico_historico(Emissoes, usuario, 'Emissões Atmosféricas')
+    graficos_ruidos = gerar_grafico_historico(Ruidos, usuario, 'Ruídos Ambientais')
 
-    # Contagem de conformidade e não conformidade no período
-    conformes = EfluentesLiquidos.objects.filter(
-        conformidade='Conforme',
-        unidade_empresarial__in=unidade,
-        data_medicao__range=(data_inicial, data_final)
-    ).count()
-
-    nao_conformes = EfluentesLiquidos.objects.filter(
-        conformidade='Não Conforme',
-        unidade_empresarial__in=unidade,
-        data_medicao__range=(data_inicial, data_final)
-    ).count()
-
-    # Dados por tipo de efluente
-    por_tipo = (
-        EfluentesLiquidos.objects
-        .filter(data_medicao__range=(data_inicial, data_final),unidade_empresarial__in=unidade)
-        .values('tipo_efluente')
-        .order_by('tipo_efluente')
-        .annotate(qtd=Count('id'))
-    )
-
-    context = {
-        'conformes': conformes,
-        'nao_conformes': nao_conformes,
-        'por_tipo': por_tipo,
+    contexto = {
+        'graficos_efluentes': graficos_efluentes,
+        'graficos_emissoes': graficos_emissoes,
+        'graficos_ruidos': graficos_ruidos
     }
 
-    return render(request, 'monitor/dashboard.html', context)
+    return render(request, 'monitor/dashboard.html', contexto)
 
 def dashboard_view(request):
     return render(request, "monitor/dashboard.html")
