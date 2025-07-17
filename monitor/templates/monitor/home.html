@@ -8,7 +8,7 @@
     <h1 class="text-center mb-4">Bem-vindo ao Sistema de Monitoramento Ambiental</h1>
 
     <p class="lead text-center mb-5">
-        Acompanhe os dados de monitoramento de Efluentes Líquidos, Emissões Atmosféricas e Ruídos.
+        Acompanhe os dados de monitoramento de Efluentes Líquidos, Emissões Atmosféricas, Ruídos, Residuos Sólidos e Educação Ambiental.
     </p>
 
     <div class="row justify-content-center">
@@ -39,6 +39,26 @@
                     <h3 class="card-title">Ruídos</h3>
                     <p class="card-text">Dados sobre ruídos diurnos e noturnos.</p>
                     <a href="{% url 'listar_ruidos' %}" class="btn btn-primary">Ver Ruídos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Resíduos Sólidos</h3>
+                    <p class="card-text">Dados sobre Resíduos Sólidos.</p>
+                    <a href="{% url 'listar_residuos' %}" class="btn btn-primary">Ver Resíduos</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title">Educação Ambiental</h3>
+                    <p class="card-text">Dados sobre Educação Ambiental.</p>
+                    <a href="{% url 'listar_educacao' %}" class="btn btn-primary">Ver Educação</a>
                 </div>
             </div>
         </div>

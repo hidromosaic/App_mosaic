@@ -102,6 +102,7 @@ class EfluentesLiquidos(models.Model):
     conformidade = models.CharField(max_length=20, choices=[('Conforme', 'Conforme'), ('Não Conforme', 'Não Conforme')])
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     justificativa = models.TextField(null=True, blank=True)
+    relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -139,6 +140,7 @@ class Emissoes(models.Model):
     conformidade = models.CharField(max_length=20, choices=[('Conforme', 'Conforme'), ('Não Conforme', 'Não Conforme')])
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     justificativa = models.TextField(null=True, blank=True)
+    relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -175,6 +177,7 @@ class Ruidos(models.Model):
     conformidade = models.CharField(max_length=20, choices=[('Conforme', 'Conforme'), ('Não Conforme', 'Não Conforme')])
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     justificativa = models.TextField(null=True, blank=True)
+    relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
