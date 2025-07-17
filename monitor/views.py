@@ -14,6 +14,7 @@ from .forms import ControleResiduoForm, ListaPresencaForm, RelatorioForm
 from django.db.models import Count, Q
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test
+from django.core.paginator import Paginator
 
 def is_gerenciador(user):
     return user.groups.filter(name='Gerenciador').exists()
@@ -73,7 +74,6 @@ def excluir_efluente_liquido(request, pk):
 def listar_efluentes(request):
     usuario = request.user
     unidade = usuario.unidade.all()
-
     query = request.GET.get('q')
 
     if unidade.count() == 1:
@@ -89,8 +89,13 @@ def listar_efluentes(request):
             Q(data_medicao__icontains=query) |
             Q(conformidade__icontains=query)
         )
+    monitoramentos = monitoramentos.order_by('-data_medicao')
 
-    return render(request, 'monitor/listar_efluentes.html', {'monitoramentos': monitoramentos, 'query': query})
+    paginator = Paginator(monitoramentos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'monitor/listar_efluentes.html', {'page_obj': page_obj, 'query': query})
 
 
 #Emissões Atmosféricas
@@ -143,7 +148,6 @@ def excluir_emissoes(request, pk):
 def listar_emissoes(request):
     usuario = request.user
     unidade = usuario.unidade.all()
-
     query = request.GET.get('q')
 
     if unidade.count() == 1:
@@ -160,7 +164,13 @@ def listar_emissoes(request):
             Q(conformidade__icontains=query)
         )
 
-    return render(request, 'monitor/listar_emissoes.html', {'monitoramentos': monitoramentos, 'query': query})
+    monitoramentos = monitoramentos.order_by('-data_medicao')
+
+    paginator = Paginator(monitoramentos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'monitor/listar_emissoes.html', {'page_obj': page_obj, 'query': query})
 
 #Ruídos
 @login_required
@@ -212,7 +222,6 @@ def excluir_ruidos(request, pk):
 def listar_ruidos(request):
     usuario = request.user
     unidade = usuario.unidade.all()
-
     query = request.GET.get('q')
 
     if unidade.count() == 1:
@@ -229,7 +238,13 @@ def listar_ruidos(request):
             Q(conformidade__icontains=query)
         )
 
-    return render(request, 'monitor/listar_ruidos.html', {'monitoramentos': monitoramentos, 'query': query})
+    monitoramentos = monitoramentos.order_by('-data_medicao')
+
+    paginator = Paginator(monitoramentos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'monitor/listar_ruidos.html', {'page_obj': page_obj, 'query': query})
 
 
 #Educação Ambiental
@@ -237,7 +252,6 @@ def listar_ruidos(request):
 def listar_educacao(request):
     usuario = request.user
     unidade = usuario.unidade.all()
-
     query = request.GET.get('q')
 
     if unidade.count() == 1:
@@ -251,7 +265,13 @@ def listar_educacao(request):
             Q(tema__icontains=query)
         )
 
-    return render(request, 'monitor/listar_educacao.html', {'educacoes': educacoes, 'query':query})
+    educacoes = educacoes.order_by('-data_executada')
+
+    paginator = Paginator(educacoes, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'monitor/listar_educacao.html', {'page_obj': page_obj, 'query':query})
 
 @login_required
 def adicionar_educacao(request):
@@ -300,7 +320,6 @@ def excluir_educacao(request, pk):
 def listar_residuos(request):
     usuario = request.user
     unidade = usuario.unidade.all()
-
     query = request.GET.get('q')
 
     if unidade.count() == 1:
@@ -315,7 +334,13 @@ def listar_residuos(request):
             Q(nome_residuo__icontains=query)
         )
 
-    return render(request, 'monitor/listar_residuos.html', {'residuos': residuos, 'query':query})
+    residuos = residuos.order_by('-data_emissao')
+
+    paginator = Paginator(residuos, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'monitor/listar_residuos.html', {'page_obj': page_obj, 'query':query})
 
 @login_required
 def adicionar_residuo(request):
@@ -414,7 +439,12 @@ def listar_relatorios(request):
         relatorios = relatorios.filter(
             Q(nome__icontains=query)
         )
-    return render(request, 'monitor/listar_relatorios.html', {'relatorios': relatorios})
+    relatorios = relatorios.order_by('-data')
+
+    paginator = Paginator(relatorios, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'monitor/listar_relatorios.html', {'page_obj': page_obj})
 
 @login_required
 def adicionar_relatorio(request):
