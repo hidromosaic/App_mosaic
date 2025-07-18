@@ -14,7 +14,7 @@ from .forms import EducacaoAmbientalForm
 from .models import ControleResiduo, ListaPresenca, Relatorio
 from .forms import ControleResiduoForm, ListaPresencaForm, RelatorioForm
 
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Avg, StdDev
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
@@ -23,16 +23,20 @@ def gerar_grafico_historico(modelo, usuario, titulo):
     unidades = usuario.unidade.all()
     dados = modelo.objects.filter(unidade_empresarial__in=unidades)
 
-    # Organiza por parâmetro
     graficos = []
     parametros = dados.values_list('parametro__nome', flat=True).distinct()
 
-    for parametro in parametros:
+    for parametro_nome in parametros:
         fig = go.Figure()
-        pontos = dados.filter(parametro__nome=parametro).values_list('ponto_monitorado__nome', flat=True).distinct()
+        pontos = dados.filter(parametro__nome=parametro_nome).values_list('ponto_monitorado__nome', flat=True).distinct()
+
+        # Recuperar os limites do parâmetro (pegando um registro para extrair)
+        parametro_obj = modelo.objects.filter(parametro__nome=parametro_nome).first()
+        limite_aceitavel = parametro_obj.parametro.limite_aceitavel if parametro_obj else None
+        limite_max = parametro_obj.parametro.limite_max if parametro_obj else None
 
         for ponto in pontos:
-            registros = dados.filter(parametro__nome=parametro, ponto_monitorado__nome=ponto).order_by('data_medicao')
+            registros = dados.filter(parametro__nome=parametro_nome, ponto_monitorado__nome=ponto).order_by('data_medicao')
             datas = [r.data_medicao for r in registros]
             resultados = [r.resultado for r in registros]
 
@@ -40,15 +44,130 @@ def gerar_grafico_historico(modelo, usuario, titulo):
                 x=datas,
                 y=resultados,
                 mode='lines+markers',
-                name=ponto
+                name=ponto,
+                hovertemplate=(
+                    "Data: %{x|%d/%m/%Y}<br>" +
+                    "Resultado: %{y}<br>" +
+                    f"Parâmetro: {parametro_nome}<extra></extra>"
+                )
             ))
 
-        fig.update_layout(title=f'{titulo} - {parametro}', xaxis_title='Data', yaxis_title='Resultado')
+        # Adicionar linhas horizontais dos limites
+        if limite_aceitavel is not None:
+            fig.add_hline(y=limite_aceitavel, line_dash="dash", line_color="green",
+                          annotation_text="Limite Aceitável", annotation_position="top left")
+        if limite_max is not None:
+            fig.add_hline(y=limite_max, line_dash="dot", line_color="red",
+                          annotation_text="Limite Máximo", annotation_position="top left")
 
-        # Converte para HTML
+        fig.update_layout(
+            title=f'{titulo} - {parametro_nome}',
+            xaxis_title='Data',
+            yaxis_title='Resultado',
+            hovermode='closest',
+            legend_title='Ponto Monitorado'
+        )
+
         graficos.append(opy.plot(fig, auto_open=False, output_type='div'))
 
     return graficos
+
+def gerar_grafico_barras_media(modelo, usuario, titulo):
+    unidades = usuario.unidade.all()
+    dados = modelo.objects.filter(unidade_empresarial__in=unidades)
+
+    graficos = []
+    parametros = dados.values_list('parametro__nome', flat=True).distinct()
+
+    for parametro in parametros:
+        fig = go.Figure()
+
+        # Calcula média e desvio padrão por ponto
+        estatisticas = dados.filter(parametro__nome=parametro) \
+            .values('ponto_monitorado__nome') \
+            .annotate(
+                media_resultado=Avg('resultado'),
+                desvio_padrao=StdDev('resultado')
+            ) \
+            .order_by('ponto_monitorado__nome')
+
+        pontos = [item['ponto_monitorado__nome'] for item in estatisticas]
+        medias_resultado = [item['media_resultado'] for item in estatisticas]
+        desvios = [item['desvio_padrao'] if item['desvio_padrao'] is not None else 0 for item in estatisticas]
+
+        fig.add_trace(go.Bar(
+            x=pontos,
+            y=medias_resultado,
+            name=parametro,
+            error_y=dict(
+                type='data',
+                array=desvios,
+                visible=True
+            ),
+            hovertemplate=(
+                'Ponto: %{x}<br>'
+                'Média Resultado: %{y:.2f}<br>'
+                'Desvio Padrão: %{customdata:.2f}<br>'
+                'Parâmetro: ' + parametro + '<extra></extra>'
+            ),
+            customdata=desvios
+        ))
+
+        fig.update_layout(
+            title=f'{titulo} - Média dos Resultados por Ponto - {parametro}',
+            xaxis_title='Ponto de Monitoramento',
+            yaxis_title='Média do Resultado',
+            showlegend=False,
+            hovermode='closest'
+        )
+
+        graficos.append(opy.plot(fig, auto_open=False, output_type='div'))
+
+    return graficos
+
+def gerar_grafico_violino(modelo, usuario, titulo):
+    unidades = usuario.unidade.all()
+    dados = modelo.objects.filter(unidade_empresarial__in=unidades)
+
+    graficos = []
+    parametros = dados.values_list('parametro__nome', flat=True).distinct()
+
+    for parametro in parametros:
+        fig = go.Figure()
+        dados_param = dados.filter(parametro__nome=parametro)
+
+        # Agrupa os valores por ponto de monitoramento
+        pontos = dados_param.values_list('ponto_monitorado__nome', flat=True).distinct()
+
+        for ponto in pontos:
+            valores = dados_param.filter(ponto_monitorado__nome=ponto).values_list('resultado', flat=True)
+            fig.add_trace(go.Violin(
+                y=list(valores),
+                name=ponto,
+                box_visible=True,
+                meanline_visible=True,
+                points='all',  # pode ser 'suspectedoutliers', 'outliers', ou False para esconder
+                line_color='green',
+                hoveron='points+kde',
+                hovertemplate=(
+                    'Ponto: ' + ponto + '<br>' +
+                    'Valor: %{y}<extra></extra>'
+                )
+            ))
+
+        fig.update_layout(
+            title=f'{titulo} - Distribuição (Violino) por Ponto - {parametro}',
+            yaxis_title='Resultado',
+            xaxis_title='Ponto de Monitoramento',
+            violingap=0.3,
+            violinmode='group',
+            showlegend=False
+        )
+
+        graficos.append(opy.plot(fig, auto_open=False, output_type='div'))
+
+    return graficos
+
 
 def is_gerenciador(user):
     return user.groups.filter(name='Gerenciador').exists()
@@ -527,19 +646,43 @@ def is_gerenciador(user):
 
 @login_required
 @user_passes_test(is_gerenciador)
-def dashboard(request):
+def dashboard_efluentes(request):
     usuario = request.user
     graficos_efluentes = gerar_grafico_historico(EfluentesLiquidos, usuario, 'Efluentes Líquidos')
-    graficos_emissoes = gerar_grafico_historico(Emissoes, usuario, 'Emissões Atmosféricas')
-    graficos_ruidos = gerar_grafico_historico(Ruidos, usuario, 'Ruídos Ambientais')
-
+    graficos_barra_efluentes = gerar_grafico_barras_media(EfluentesLiquidos, usuario, 'Efluentes Líquidos')
+    graficos_violino_efluentes = gerar_grafico_violino(EfluentesLiquidos, usuario, 'EfluentesLiquidos')
     contexto = {
         'graficos_efluentes': graficos_efluentes,
-        'graficos_emissoes': graficos_emissoes,
-        'graficos_ruidos': graficos_ruidos
+        'graficos_barra_efluentes': graficos_barra_efluentes,
+        'graficos_violino_efluentes': graficos_violino_efluentes
     }
 
-    return render(request, 'monitor/dashboard.html', contexto)
+    return render(request, 'monitor/dashboard_efluentes.html', contexto)
 
-def dashboard_view(request):
-    return render(request, "monitor/dashboard.html")
+@login_required
+@user_passes_test(is_gerenciador)
+def dashboard_emissoes(request):
+    usuario = request.user
+    graficos_emissoes = gerar_grafico_historico(Emissoes, usuario, 'Emissões Atmosféricas')
+    graficos_barra_emissoes = gerar_grafico_barras_media(Emissoes, usuario, 'Emissões Atmosféricas')
+    graficos_violino_emissoes = gerar_grafico_violino(Emissoes, usuario, 'Emissões Atmosféricas')
+    contexto = {
+        'graficos_emissoes': graficos_emissoes,
+        'graficos_barra_emissoes': graficos_barra_emissoes,
+        'graficos_violino_emissoes': graficos_violino_emissoes
+    }
+    return render(request, "monitor/dashboard_emissoes.html", contexto)
+
+@login_required
+@user_passes_test(is_gerenciador)
+def dashboard_ruidos(request):
+    usuario = request.user
+    graficos_ruidos = gerar_grafico_historico(Ruidos, usuario, 'Ruídos Ambientais')
+    graficos_barra_ruidos = gerar_grafico_barras_media(Ruidos, usuario, 'Ruídos Ambientais')
+    graficos_violino_ruidos = gerar_grafico_violino(Ruidos, usuario, 'Ruídos Ambientais')
+    contexto = {
+        'graficos_ruidos': graficos_ruidos,
+        'graficos_barra_ruidos': graficos_barra_ruidos,
+        'graficos_violino_ruidos': graficos_violino_ruidos
+    }
+    return render(request, "monitor/dashboard_ruidos.html", contexto)

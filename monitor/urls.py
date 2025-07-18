@@ -47,6 +47,7 @@ urlpatterns = [
     path('relatorios/excluir/<int:pk>/', views.excluir_relatorio, name='excluir_relatorio'),
 
     #dashboard
-    #path('dashboard/', views.dashboard, name='dashboard'),
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/efluentes/', views.dashboard_efluentes, name='dashboard_efluentes'),
+    path('dashboard/emissoes/', views.dashboard_emissoes, name='dashboard_emissoes'),
+    path('dashboard/ruidos/', views.dashboard_ruidos, name='dashboard_ruidos'),
 ]

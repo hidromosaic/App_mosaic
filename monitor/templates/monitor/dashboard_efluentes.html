@@ -1,0 +1,66 @@
+{% extends 'monitor/base.html' %}
+{% load static %}
+{% load plotly_dash %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4 text-center">Dashboard de Monitoramento de Efluentes Líquidos</h1>
+
+    <!-- GRÁFICOS DE LINHA -->
+    <div class="grafico-grid">
+        {% for grafico in graficos_efluentes %}
+            <div class="grafico-item">
+                {{ grafico|safe }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <!-- GRÁFICOS DE BARRA -->
+    <div class="grafico-grid">
+        {% for grafico in graficos_barra_efluentes %}
+            <div class="grafico-item">
+                {{ grafico|safe }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <!-- GRÁFICOS DE VIOLINO -->
+    <div class="grafico-grid">
+        {% for grafico in graficos_violino_efluentes %}
+            <div class="grafico-item">
+                {{ grafico|safe }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .grafico-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between;
+    }
+
+    .grafico-item {
+        flex: 1 1 48%;
+        box-sizing: border-box;
+    }
+
+    .grafico-item iframe {
+        width: 100% !important;
+        height: auto !important;
+        display: block;
+    }
+
+    @media (max-width: 768px) {
+        .grafico-item {
+            flex: 1 1 100%;
+        }
+    }
+</style>
+{% endblock %}
