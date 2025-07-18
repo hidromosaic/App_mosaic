@@ -148,7 +148,7 @@ def gerar_grafico_violino(modelo, usuario, titulo):
                 box_visible=True,
                 meanline_visible=True,
                 points='all',  # pode ser 'suspectedoutliers', 'outliers', ou False para esconder
-                line_color='green',
+                #line_color='green',
                 hoveron='points+kde',
                 hovertemplate=(
                     'Ponto: ' + ponto + '<br>' +
