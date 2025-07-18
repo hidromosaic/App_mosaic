@@ -65,7 +65,8 @@ def gerar_grafico_historico(modelo, usuario, titulo):
             xaxis_title='Data',
             yaxis_title='Resultado',
             hovermode='closest',
-            legend_title='Ponto Monitorado'
+            legend_title='Ponto Monitorado',
+            showlegend=True
         )
 
         graficos.append(opy.plot(fig, auto_open=False, output_type='div'))
@@ -117,7 +118,7 @@ def gerar_grafico_barras_media(modelo, usuario, titulo):
             title=f'{titulo} - Média dos Resultados por Ponto - {parametro}',
             xaxis_title='Ponto de Monitoramento',
             yaxis_title='Média do Resultado',
-            showlegend=False,
+            showlegend=True,
             hovermode='closest'
         )
 
@@ -161,7 +162,7 @@ def gerar_grafico_violino(modelo, usuario, titulo):
             xaxis_title='Ponto de Monitoramento',
             violingap=0.3,
             violinmode='group',
-            showlegend=False
+            showlegend=True
         )
 
         graficos.append(opy.plot(fig, auto_open=False, output_type='div'))
