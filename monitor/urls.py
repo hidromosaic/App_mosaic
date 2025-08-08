@@ -50,4 +50,13 @@ urlpatterns = [
     path('dashboard/efluentes/', views.dashboard_efluentes, name='dashboard_efluentes'),
     path('dashboard/emissoes/', views.dashboard_emissoes, name='dashboard_emissoes'),
     path('dashboard/ruidos/', views.dashboard_ruidos, name='dashboard_ruidos'),
+
+
+    #filtrar parametros dinamicamente
+    path('ajax/carregar-pontos-efluente/', views.carregar_pontos_por_tipo_efluente, name='carregar_pontos_por_tipo_efluente'),
+    path('ajax/carregar-pontos-emissao/', views.carregar_pontos_por_tipo_emissao, name='carregar_pontos_por_tipo_emissao'),
+    path('ajax/carregar-pontos-ruido/', views.carregar_pontos_por_tipo_ruido, name='carregar_pontos_por_tipo_ruido'),
+    path("ajax/carregar-parametros-efluente/", views.carregar_parametros_por_tipo_efluente, name="carregar_parametros_por_tipo_efluente"),
+    path("ajax/carregar-parametros-emissao/", views.carregar_parametros_por_tipo_emissao, name="carregar_parametros_por_tipo_emissao"),
+    path("ajax/carregar-parametros-ruido/", views.carregar_parametros_por_tipo_ruido, name="carregar_parametros_por_tipo_ruido"),
 ]

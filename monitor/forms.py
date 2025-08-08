@@ -23,6 +23,9 @@ class EfluentesLiquidosForm(forms.ModelForm):
             # Filtra pontos monitorados conforme unidades do usuário
             self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades)
 
+            #Filtra os Parâmetros conforme o programa
+            #self.fields['parametro'].queryset = Parametro.objects.none()
+
             # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
             self.fields['unidade_empresarial'] = forms.ModelChoiceField(
                 queryset=unidades,
@@ -55,7 +58,7 @@ class EmissoesForm(forms.ModelForm):
 
             # Filtra pontos monitorados conforme unidades do usuário
             self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades)
-
+            #self.fields['parametro'].queryset = Parametro.objects.none()
             # Adiciona campo 'unidade_empresarial' dinamicamente se não estiver no exclude
             self.fields['unidade_empresarial'] = forms.ModelChoiceField(
                 queryset=unidades,
@@ -88,7 +91,7 @@ class RuidosForm(forms.ModelForm):
 
             # Filtra pontos monitorados conforme unidades do usuário
             self.fields['ponto_monitorado'].queryset = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades)
-
+            self.fields['parametro'].queryset = Parametro.objects.filter(subcategoria__categoria__iexact='Ruídos')
             # Define queryset do campo unidade_empresarial com base nas unidades do usuário
             self.fields['unidade_empresarial'].queryset = unidades
             self.fields['unidade_empresarial'].required = True

@@ -13,11 +13,13 @@ from .models import EducacaoAmbiental, Parametro
 from .forms import EducacaoAmbientalForm
 from .models import ControleResiduo, ListaPresenca, Relatorio
 from .forms import ControleResiduoForm, ListaPresencaForm, RelatorioForm
+from .models import PontoMonitoramento
 
 from django.db.models import Count, Q, Avg, StdDev
 from django.utils import timezone
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
+from django.http import JsonResponse
 
 def gerar_grafico_historico(modelo, usuario, titulo):
     unidades = usuario.unidade.all()
@@ -169,6 +171,125 @@ def gerar_grafico_violino(modelo, usuario, titulo):
 
     return graficos
 
+
+@login_required
+def carregar_pontos_por_tipo_efluente(request):
+    tipo_efluente = request.GET.get('tipo_efluente')
+    unidade = request.GET.get('unidade_empresarial')
+
+    usuario = request.user
+    unidades_user = usuario.unidade.all()
+
+    # Base: pontos apenas das unidades do usuário
+    pontos = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades_user)
+
+    # Filtra por tipo de efluente se informado
+    if tipo_efluente:
+        pontos = pontos.filter(
+            subcategoria__subcategoria__iexact=tipo_efluente
+        )
+
+    # Filtra por unidade específica se informada
+    if unidade:
+        pontos = pontos.filter(
+            unidade_empresarial_id=unidade
+        )
+
+    pontos_data = [{'id': ponto.id, 'nome': ponto.nome} for ponto in pontos]
+    return JsonResponse(pontos_data, safe=False)
+
+
+@login_required
+def carregar_pontos_por_tipo_emissao(request):
+    tipo_emissao = request.GET.get('tipo_emissao')
+    unidade = request.GET.get('unidade_empresarial')
+
+    usuario = request.user
+    unidades_user = usuario.unidade.all()
+
+    if unidades_user.count() == 1:
+        unidades_user = unidades_user.first()
+        pontos = PontoMonitoramento.objects.filter(unidade_empresarial=unidades_user)
+    else:
+        pontos = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades_user)
+
+    if tipo_emissao:
+        pontos = pontos.filter(
+            subcategoria__subcategoria__iexact=tipo_emissao
+        )
+    else:
+        pontos = PontoMonitoramento.objects.none()
+
+    if unidade:
+        pontos = pontos.filter(
+            unidade_empresarial_id=unidade
+        )
+
+    pontos_data = [{'id':ponto.id, 'nome':ponto.nome} for ponto in pontos]
+    return JsonResponse(pontos_data, safe=False)
+
+
+@login_required
+def carregar_pontos_por_tipo_ruido(request):
+    tipo_ruido = request.GET.get('tipo_ruido')
+    unidade = request.GET.get('unidade_empresarial')
+
+    usuario = request.user
+    unidades_user = usuario.unidade.all()
+
+    if unidades_user.count() == 1:
+        unidades_user = unidades_user.first()
+        pontos = PontoMonitoramento.objects.filter(unidade_empresarial=unidades_user)
+    else:
+        pontos = PontoMonitoramento.objects.filter(unidade_empresarial__in=unidades_user)
+
+    if tipo_ruido:
+        pontos = pontos.filter(
+            subcategoria__subcategoria__iexact=tipo_ruido
+        )
+    else:
+        pontos = PontoMonitoramento.objects.none()
+
+    if unidade:
+        pontos = pontos.filter(
+            unidade_empresarial_id=unidade
+        )
+
+    pontos_data = [{'id':ponto.id, 'nome':ponto.nome} for ponto in pontos]
+    return JsonResponse(pontos_data, safe=False)
+
+
+@login_required
+def carregar_parametros_por_tipo_efluente(request):
+    tipo_efluente = request.GET.get('tipo_efluente')
+
+    if tipo_efluente:
+        parametros = Parametro.objects.filter(subcategoria__subcategoria__iexact=tipo_efluente).order_by('nome')
+    else:
+        parametros = Parametro.objects.none()
+
+    pontos_data = [{'id':ponto.id, 'nome':ponto.nome} for ponto in parametros]
+    return JsonResponse(pontos_data, safe=False)
+
+
+@login_required
+def carregar_parametros_por_tipo_emissao(request):
+    tipo_emissao = request.GET.get('tipo_emissao')
+
+    parametros = Parametro.objects.filter(subcategoria__subcategoria__iexact=tipo_emissao)
+
+    pontos_data = [{'id':ponto.id, 'nome':ponto.nome} for ponto in parametros]
+    return JsonResponse(pontos_data, safe=False)
+
+
+@login_required
+def carregar_parametros_por_tipo_ruido(request):
+    tipo_ruido = request.GET.get('tipo_ruido')
+
+    parametros = Parametro.objects.filter(subcategoria__subcategoria__iexact=tipo_ruido)
+
+    pontos_data = [{'id':ponto.id, 'nome':ponto.nome} for ponto in parametros]
+    return JsonResponse(pontos_data, safe=False)
 
 def is_gerenciador(user):
     return user.groups.filter(name='Gerenciador').exists()

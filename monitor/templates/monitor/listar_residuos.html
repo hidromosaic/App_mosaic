@@ -7,15 +7,18 @@
     <input type="text" name="q" placeholder="Filtrar por código ou nome" value="{{ query|default_if_none:'' }}">
     <button type="submit">Filtrar</button>
 </form>
-<table class="table table-striped mt-3">
+<table id="tabela-residuos" class="table table-striped mt-3">
     <thead>
         <tr>
-            <th>Unidade Empresarial</th>
-            <th>Código</th>
-            <th>Nome</th>
-            <th>Data de Emissão</th>
-            <th>Peso</th>
+            <th>Unidade Empresarial<br><input type="text" class="filtro-coluna" data-col="0" placeholder="Filtrar..."></th>
+            <th>Código<br><input type="text" class="filtro-coluna" data-col="1" placeholder="Filtrar..."></th>
+            <th>Nome<br><input type="text" class="filtro-coluna" data-col="2" placeholder="Filtrar..."></th>
+            <th>Data de Emissão<br><input type="text" class="filtro-coluna" data-col="3" placeholder="Filtrar..."></th>
+            <th>Peso<br><input type="text" class="filtro-coluna" data-col="4" placeholder="Filtrar..."></th>
             <th>Ações</th>
+            <th>Link<br><input type="text" class="filtro-coluna" data-col="6" placeholder="Filtrar..."></th>
+            <th>Relatório<br><input type="text" class="filtro-coluna" data-col="7" placeholder="Filtrar..."></th>
+            <th>Responsável<br><input type="text" class="filtro-coluna" data-col="8" placeholder="Filtrar..."></th>
         </tr>
     </thead>
     <tbody>
@@ -32,12 +35,16 @@
                 <a href="{% url 'excluir_residuo' residuo.id %}">Excluir</a>
                 {% endif %}
             </td>
+            <td>{{ residuo.link }}</td>
+            <td>{{ residuo.relatorio }}</td>
+            <td>{{ residuo.inserido_por }}</td>
         </tr>
         {% empty %}
-        <tr><td colspan="5">Nenhum resíduo registrado.</td></tr>
+        <tr><td colspan="9">Nenhum resíduo registrado.</td></tr>
         {% endfor %}
     </tbody>
 </table>
+
 <div class="pagination">
   <span class="step-links">
     {% if page_obj.has_previous %}
@@ -55,4 +62,23 @@
     {% endif %}
   </span>
 </div>
+
+<script>
+document.querySelectorAll('.filtro-coluna').forEach(input => {
+    input.addEventListener('keyup', function () {
+        const tabela = document.getElementById('tabela-residuos');
+        const filtro = this.value.toLowerCase();
+        const colIndex = parseInt(this.getAttribute('data-col'));
+        const linhas = tabela.tBodies[0].rows;
+
+        for (let i = 0; i < linhas.length; i++) {
+            const celula = linhas[i].cells[colIndex];
+            if (celula) {
+                const texto = celula.textContent.toLowerCase();
+                linhas[i].style.display = texto.includes(filtro) ? '' : 'none';
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

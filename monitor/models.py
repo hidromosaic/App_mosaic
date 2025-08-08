@@ -19,32 +19,43 @@ class UnidadeEmpresarial(models.Model):
     def __str__(self):
         return f"{self.unidade} - {self.uf}"
 
-class Programa(models.Model):
-    nome = models.CharField(max_length=100)
-    unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
+
+class Classificacao(models.Model):
+    TIPO_CATEGORIA_CHOICES = [
+    ('Efluentes Líquidos', 'Efluentes Líquidos'),
+    ('Emissões Atmosféricas', 'Emissões Atmosféricas'),
+    ('Ruídos', 'Ruídos'),
+    ]
+
+    TIPO_SUBCATEGORIA_CHOICES = [
+    ('Diurno', 'Diurno'),
+    ('Noturno', 'Noturno'),
+    ('Emissão Atmosférica', 'Emissão Atmosférica'),
+    ('Qualidade do Ar', 'Qualidade do Ar'),
+    ('Fumaça Preta', 'Fumaça Preta'),
+    ('Efluente Industrial', 'Efluente Industrial'),
+    ('Efluente Sanitário', 'Efluente Sanitário'),
+    ('Efluente Pluvial', 'Efluente Pluvial'),
+    ]
+    categoria = models.CharField(max_length=100, choices=TIPO_CATEGORIA_CHOICES)
+    subcategoria = models.CharField(max_length=100, choices=TIPO_SUBCATEGORIA_CHOICES)
 
     def __str__(self):
-        return f"{self.nome}"
-
-class Subcategoria(models.Model):
-    nome = models.CharField(max_length=100)
-    programa = models.ForeignKey(Programa, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.nome} ({self.programa.nome})"
+        return f"{self.categoria} - {self.subcategoria}"
 
 
 class Parametro(models.Model):
     nome = models.CharField(max_length=100)
+    subcategoria = models.ForeignKey(Classificacao, on_delete=models.CASCADE, null=True, blank=True)
     limite_aceitavel = models.FloatField()
     limite_max = models.FloatField(null=True, blank=True)
     unidade_medicao = models.ForeignKey(UnidadeMedicao, on_delete=models.CASCADE)
-
     requisito = models.TextField()
     periodicidade = models.CharField(max_length=100)
 
+
     def __str__(self):
-        return self.nome
+        return f"{self.nome} - {self.subcategoria}"
 
 class Usuario(AbstractUser):
     unidade = models.ManyToManyField(UnidadeEmpresarial, blank=True, related_name='usuarios')
@@ -58,9 +69,10 @@ class PontoMonitoramento(models.Model):
     longitude = models.FloatField()
     zona_utm = models.CharField(max_length=50)
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
+    subcategoria = models.ManyToManyField(Classificacao, blank=True)
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} - {self.unidade_empresarial}"
 
 
 class Relatorio(models.Model):
@@ -68,6 +80,7 @@ class Relatorio(models.Model):
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     revisao = models.CharField(max_length=50)
     data = models.DateField()
+    link = models.URLField("Link do Documento", max_length=500, blank=True, null=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -89,9 +102,9 @@ class Relatorio(models.Model):
 
 class EfluentesLiquidos(models.Model):
     TIPO_EFLIENTE_CHOICES = [
-    ('Pluvial', 'Pluvial'),
-    ('Sanitário', 'Sanitário'),
-    ('Industrial', 'Industrial'),
+    ('Efluente Industrial', 'Efluente Industrial'),
+    ('Efluente Sanitário', 'Efluente Sanitário'),
+    ('Efluente Pluvial', 'Efluente Pluvial'),
     ]
 
     tipo_efluente = models.CharField(max_length=20, choices=TIPO_EFLIENTE_CHOICES)
@@ -103,6 +116,7 @@ class EfluentesLiquidos(models.Model):
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     justificativa = models.TextField(null=True, blank=True)
     relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
+    link = models.URLField("Link do Documento", max_length=500, blank=True, null=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -127,7 +141,7 @@ class EfluentesLiquidos(models.Model):
 
 class Emissoes(models.Model):
     TIPO_EMISSAO_CHOICES = [
-    ('Atmosférica', 'Atmosférica'),
+    ('Emissão Atmosférica', 'Emissão Atmosférica'),
     ('Qualidade do Ar', 'Qualidade o Ar'),
     ('Fumaça Preta', 'Fumaça Preta'),
     ]
@@ -141,6 +155,7 @@ class Emissoes(models.Model):
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     justificativa = models.TextField(null=True, blank=True)
     relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
+    link = models.URLField("Link do Documento", max_length=500, blank=True, null=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -178,6 +193,7 @@ class Ruidos(models.Model):
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
     justificativa = models.TextField(null=True, blank=True)
     relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
+    link = models.URLField("Link do Documento", max_length=500, blank=True, null=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -228,6 +244,7 @@ class EducacaoAmbiental(models.Model):
     total_participantes = models.IntegerField()
     lista_presenca = models.ForeignKey(ListaPresenca, on_delete=models.CASCADE, null=True, blank=True)
     relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
+    link = models.URLField("Link do Documento", max_length=500, blank=True, null=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -248,20 +265,47 @@ class EducacaoAmbiental(models.Model):
     def __str__(self):
         return self.tema
 
+class Residuos(models.Model):
+    TIPO_CLASSIFICACAO_CHOICES = [
+    ("Perigoso", "Perigoso"),
+    ]
+    codigo_residuo = models.CharField(max_length=20)
+    descricao = models.CharField(max_length=200)
+    classificacao = models.CharField(max_length=20, choices=TIPO_CLASSIFICACAO_CHOICES, blank=True, null=True)
+    unidade = models.ForeignKey(UnidadeMedicao, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.codigo_residuo} - {self.descricao}"
+
+class Tratamento(models.Model):
+    disposicao_final = models.CharField(max_length=200)
+
+    def __str__(self):
+        return f"{self.disposicao_final}"
 
 class ControleResiduo(models.Model):
-    codigo_residuo = models.CharField(max_length=100)
+    TIPO_ARMAZENAGEM_TEMPORARIA_CHOICES = [
+    ('Sim', 'Sim'),
+    ('Não', 'Não'),
+    ]
+
     unidade_empresarial = models.ForeignKey(UnidadeEmpresarial, on_delete=models.CASCADE)
-    nome_residuo = models.CharField(max_length=100)
+    nome_residuo = models.ForeignKey(Residuos, on_delete=models.CASCADE)
     data_emissao = models.DateField(null=True, blank=True)
-    armazenagem_temporaria = models.CharField(max_length=200, null=True, blank=True)
-    disposicao_final = models.CharField(max_length=200, null=True, blank=True)
+    armazenagem_temporaria = models.CharField(max_length=200, choices=TIPO_ARMAZENAGEM_TEMPORARIA_CHOICES, null=True, blank=True)
+    disposicao_final = models.ForeignKey(Tratamento, on_delete=models.CASCADE, null=True, blank=True)
     transportador = models.CharField(max_length=100, null=True, blank=True)
     receptor_residuo = models.CharField(max_length=100, null=True, blank=True)
     mtr = models.CharField(max_length=100, null=True, blank=True)
-    cdf = models.CharField(max_length=100, null=True, blank=True)
+    cdf = models.FileField(
+        upload_to='CDF_pdfs/',
+        blank=True,
+        null=True,
+        verbose_name='Inserir CDF'
+    )
     peso = models.FloatField(null=True, blank=True)
     relatorio = models.ForeignKey(Relatorio, on_delete=models.CASCADE, null=True, blank=True)
+    link = models.URLField("Link do Documento", max_length=500, blank=True, null=True)
     inserido_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

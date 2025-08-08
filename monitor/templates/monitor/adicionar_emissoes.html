@@ -1,12 +1,110 @@
 {% extends 'monitor/base.html' %}
 
 {% block content %}
-<h2>{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} {{ titulo }}</h2>
+<h2>{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Emissão Atmosférica</h2>
 
-<form method="post">
+<form method="post" id="emissaoForm">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <div class="mb-3">
+        {{ form.tipo_emissao.label_tag }}
+        {{ form.tipo_emissao }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.unidade_empresarial.label_tag }}
+        {{ form.unidade_empresarial }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.parametro.label_tag }}
+        {{ form.parametro }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.ponto_monitorado.label_tag }}
+        {{ form.ponto_monitorado }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.data_medicao.label_tag }}
+        {{ form.data_medicao }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.resultado.label_tag }}
+        {{ form.resultado }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.justificativa.label_tag }}
+        {{ form.justificativa }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.link.label_tag }}
+        {{ form.link }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.relatorio.label_tag }}
+        {{ form.relatorio }}
+    </div>
+
     <button type="submit" class="btn btn-success">Salvar</button>
     <a href="javascript:history.back()" class="btn btn-secondary">Cancelar</a>
 </form>
+
+<!-- jQuery para AJAX -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Filtrar pontos monitorados com base no tipo de emissao
+    $(document).ready(function () {
+    function atualizarPontosMonitorados() {
+        var tipoEmissaoId = $('#id_tipo_emissao').val();
+        var unidadeEmpresarialId = $('#id_unidade_empresarial').val();
+
+        $.ajax({
+            url: "{% url 'carregar_pontos_por_tipo_emissao' %}",
+            data: {
+                'tipo_emissao': tipoEmissaoId,
+                'unidade_empresarial': unidadeEmpresarialId
+            },
+            success: function (data) {
+                var selectPonto = $('#id_ponto_monitorado');
+                selectPonto.empty();
+                selectPonto.append('<option value="">---------</option>');
+                $.each(data, function (index, ponto) {
+                    selectPonto.append('<option value="' + ponto.id + '">' + ponto.nome + '</option>');
+                });
+            }
+        });
+    }
+
+    $('#id_tipo_emissao, #id_unidade_empresarial').change(function () {
+        atualizarPontosMonitorados();
+    });
+
+    $('#id_tipo_emissao').change(function () {
+        var tipoEmissaoId = $(this).val();
+
+        // Atualiza parâmetros
+        $.ajax({
+            url: "{% url 'carregar_parametros_por_tipo_emissao' %}",
+            data: {
+                'tipo_emissao': tipoEmissaoId
+            },
+            success: function (data) {
+                var selectParametro = $('#id_parametro');
+                selectParametro.empty();
+                selectParametro.append('<option value="">---------</option>');
+                $.each(data, function (index, parametro) {
+                    selectParametro.append('<option value="' + parametro.id + '">' + parametro.nome + '</option>');
+                });
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

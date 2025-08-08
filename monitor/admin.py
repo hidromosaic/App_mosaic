@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import (
     UnidadeMedicao, Parametro, UnidadeEmpresarial, PontoMonitoramento, Usuario,
-    Relatorio, EfluentesLiquidos, Emissoes, Ruidos, ListaPresenca, EducacaoAmbiental, ControleResiduo
+    Residuos, Relatorio, EfluentesLiquidos, Emissoes, Ruidos, ListaPresenca,
+    EducacaoAmbiental, ControleResiduo, Tratamento, Classificacao
 )
 
 @admin.register(Usuario)
@@ -49,3 +50,6 @@ admin.site.register(Ruidos, MonitoramentosAdmin)
 admin.site.register(ListaPresenca)
 admin.site.register(EducacaoAmbiental)
 admin.site.register(ControleResiduo)
+admin.site.register(Residuos)
+admin.site.register(Tratamento)
+admin.site.register(Classificacao)
